@@ -1,36 +1,47 @@
 #include <iostream>
 #include <fstream>
-#include "main_wrapper.cuh"
-#include "matrixes/SparseStructures.hpp"
 #include <random>
 
-
+#include "main_wrapper.cuh"
+#include "matrixes/SparseStructures.hpp"
+#include "ChronoTimer.h"
 
 int main()
 {
-    std::ifstream matrix_file("./matrixes/modfem_crs_1210.txt");
+    std::ifstream matrix_file("./matrixes/modfem_crs_3745223.txt");
     if (!matrix_file.is_open()) {
         std::cout << "error\n";
         return -1;
     }
 
-    SparseStructures::CSR test_csr = SparseStructures::CSR::readModFEMcrsMatrix(matrix_file);
-    // SparseStructures::CSR::print(test_csr);
+    ChronoTimer timer;
 
+    SparseStructures::CSR test_csr;
+timer.setStartTime();
+    SparseStructures::CSR::readModFEMcrsMatrixFromFile(test_csr, matrix_file);
+timer.setEndTime();
+
+std::cout << "Time difference: "<< timer.getDiffInMS() << " [ms]" << std::endl;
+std::cout << "Time difference: " << timer.getDiffInS() << " [s]" << std::endl;
+   
     matrix_file.close();
+
+#ifdef _DEBUG
+    SparseStructures::CSR::print(test_csr,100);
+#endif
+
+    return 0;
 
     double* b = new double[test_csr.getN()];
 
-    for (unsigned int i = 0; i < test_csr.getN(); i++)
-    {
-        b[i] = 0.23;
-    }
+    for (int i = 0; i < test_csr.getN(); i++)
+        b[i] = 1;
 
     double* x;
 
     doDecomposition(test_csr, b, &x);
 
-    for (unsigned i = 0u; i < test_csr.getN(); i++)
+    for (int i = 0; i < test_csr.getN(); i++)
         std::cout << x[i] << " ";
     std::cout << std::endl;
     delete[] b;

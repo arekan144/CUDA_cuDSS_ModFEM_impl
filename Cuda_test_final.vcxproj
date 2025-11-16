@@ -13,11 +13,13 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="matrixes\CSR_class.cpp" />
+    <ClCompile Include="matrixes\SparseStructures.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="main_wrapper.cu" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ChronoTimer.h" />
     <ClInclude Include="main_wrapper.cuh" />
     <ClInclude Include="matrixes\SparseStructures.hpp" />
   </ItemGroup>

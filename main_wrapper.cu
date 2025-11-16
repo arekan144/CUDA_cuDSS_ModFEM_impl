@@ -65,7 +65,9 @@ if(call != CUDSS_STATUS_SUCCESS){ \
 #endif
 
 
-int doDecomposition(SparseStructures::CSR& matrix, double* b, double** x)
+int doDecomposition(SparseStructures::CSR& matrix, double* b,
+    double** x, cudssMatrixType_t mtype,
+    cudssMatrixViewType_t mview, cudssIndexBase_t base)
 {
     cudaError_t cudaStatus = cudaSuccess;
     cudssStatus_t cudssStatus = CUDSS_STATUS_SUCCESS;
@@ -81,9 +83,9 @@ int doDecomposition(SparseStructures::CSR& matrix, double* b, double** x)
     cudssData_t data = nullptr;
 
     cudssMatrix_t A_h = nullptr;
-    cudssMatrixType_t mtype = CUDSS_MTYPE_GENERAL;
-    cudssMatrixViewType_t mview = CUDSS_MVIEW_FULL;
-    cudssIndexBase_t base = CUDSS_BASE_ZERO;
+    //cudssMatrixType_t mtype = CUDSS_MTYPE_HERMITIAN;
+    //cudssMatrixViewType_t mview = CUDSS_MVIEW_FULL;
+    //cudssIndexBase_t base = CUDSS_BASE_ZERO;
 
     cudssMatrix_t x_h = nullptr;
     cudssMatrix_t b_h = nullptr;
@@ -190,7 +192,7 @@ int doDecomposition(SparseStructures::CSR& matrix, double* b, double** x)
 
     interpretCudssStatus(
         cudssExecute(handle,
-            CUDSS_PHASE_FACTORIZATION,
+            CUDSS_PHASE_SOLVE,
             solverConfig,
             solverData,
             A_h,

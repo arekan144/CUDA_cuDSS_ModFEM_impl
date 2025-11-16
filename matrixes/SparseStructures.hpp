@@ -1,5 +1,7 @@
 #pragma once
-#include "fstream"
+#include <fstream>
+#include <thread>
+#include <future>
 namespace SparseStructures
 {
 	class CSR {
@@ -10,7 +12,7 @@ namespace SparseStructures
 		};
 		CSR(const CSR& _CSR);
 		SparseStructures::CSR& operator=(const SparseStructures::CSR& _CSR);
-		static SparseStructures::CSR readModFEMcrsMatrix(std::ifstream& matrix_file);
+		static void readModFEMcrsMatrixFromFile(CSR& _CSR, std::ifstream& matrix_file);
 		double* SparseStructures::CSR::getAcsr()
 		{
 			return a_csr;
@@ -47,4 +49,3 @@ namespace SparseStructures
 		int nnz;			// number of non zero values
 	};
 }
-

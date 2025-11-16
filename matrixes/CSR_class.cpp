@@ -7,16 +7,24 @@ void SparseStructures::CSR::copyMatrix(const SparseStructures::CSR* inpt, Sparse
 //std::cout << inpt->n << " " << inpt->nnz;
     dest->n = inpt->n;
     dest->nnz = inpt->nnz;
-    dest->a_csr = new double[inpt->nnz];
-    dest->row_ptr = new int[(inpt->n + 1lu)];
-    dest->col_ind = new int[inpt->nnz];
-    for (unsigned int i = 0u; i < inpt->n + 1lu; i++) {
-        dest->row_ptr[i] = inpt->row_ptr[i];
+    if (dest->n == 0 || inpt->row_ptr == nullptr)
+    {
+        dest->col_ind = dest->row_ptr = nullptr;
+        dest->a_csr = nullptr;
     }
+    else {
+        dest->a_csr = new double[inpt->nnz];
+        dest->row_ptr = new int[(inpt->n + 1lu)];
+        dest->col_ind = new int[inpt->nnz];
 
-    for (unsigned int i = 0u; i < inpt->nnz; i++) {
-        dest->col_ind[i] = inpt->col_ind[i];
-        dest->a_csr[i] = inpt->a_csr[i];
+        for (unsigned int i = 0u; i < inpt->n + 1lu; i++) {
+            dest->row_ptr[i] = inpt->row_ptr[i];
+        }
+
+        for (unsigned int i = 0u; i < inpt->nnz; i++) {
+            dest->col_ind[i] = inpt->col_ind[i];
+            dest->a_csr[i] = inpt->a_csr[i];
+        }
     }
 }
 
@@ -29,10 +37,109 @@ SparseStructures::CSR& SparseStructures::CSR::operator=(const SparseStructures::
     SparseStructures::CSR::copyMatrix(&_CSR, this);
     return *this;
 }
-SparseStructures::CSR SparseStructures::CSR::readModFEMcrsMatrix(std::ifstream& matrix_file)
+#include <iostream>
+static void assignValuesInt(std::string& text_data_from_matrix, int maxN,
+    unsigned long long prev_find, int* data)
 {
-  CSR _CSR;
+    auto find = 0llu;
+    auto n_str = 0llu;
+    for (auto i = 0; i < maxN; i++) {
+        find = text_data_from_matrix.find(' ', prev_find + 1);
+        n_str = find - prev_find;
+        data[i] = std::stoi(text_data_from_matrix.substr(prev_find + 1, n_str));
+        prev_find = find;
+    }
+    
+}
 
+static void assignValuesDouble(std::string& text_data_from_matrix, int maxN,
+    unsigned long long prev_find, double* data)
+{
+    auto find = 0llu;
+    auto n_str = 0llu;
+    for (auto i = 0; i < maxN; i++) {
+        find = text_data_from_matrix.find(' ', prev_find + 1);
+        n_str = find - prev_find;
+        data[i] = std::stod(text_data_from_matrix.substr(prev_find + 1, n_str));
+        prev_find = find;
+    }
+    
+}
+#define THREADED
+void SparseStructures::CSR::readModFEMcrsMatrixFromFile(CSR& _CSR, std::ifstream& matrix_file)
+{
+  matrix_file.seekg(0, matrix_file.end);
+  std::string text_data_from_matrix(matrix_file.tellg(), 0);
+  matrix_file.seekg(0);
+  matrix_file.read(const_cast<char*>(text_data_from_matrix.data()), text_data_from_matrix.size());
+
+  unsigned long long prev_find = text_data_from_matrix.find('\n');
+  _CSR.n = std::stoi(text_data_from_matrix.substr(0, prev_find));
+  unsigned long long find = text_data_from_matrix.find('\n', prev_find + 1);
+  unsigned long long n_str = find - prev_find;
+  _CSR.nnz = std::stoi(text_data_from_matrix.substr(prev_find+1, n_str));
+  prev_find = find;
+  if (_CSR.a_csr != nullptr)
+  {
+      delete[] _CSR.a_csr;
+      delete[] _CSR.row_ptr;
+      delete[] _CSR.col_ind;
+  }
+  _CSR.a_csr = new double[_CSR.nnz];
+  _CSR.row_ptr = new int[(_CSR.n + 1)];
+  _CSR.col_ind = new int[_CSR.nnz];
+
+#ifdef THREADED
+  unsigned long long n_col_start = text_data_from_matrix.find('\n', prev_find + 1);
+  unsigned long long n_a_csr_start = text_data_from_matrix.find('\n', n_col_start + 1);
+
+  std::thread t1(assignValuesInt, text_data_from_matrix, _CSR.n + 1, prev_find, _CSR.row_ptr);
+  //assignValuesInt(text_data_from_matrix, _CSR.n + 1, prev_find, _CSR.row_ptr);
+  std::thread t2(assignValuesInt, text_data_from_matrix, _CSR.nnz, n_col_start, _CSR.col_ind);
+  //unsigned long long test = (n_a_csr_start - n_col_start) / 2;
+  std::thread t3(assignValuesDouble, text_data_from_matrix, _CSR.nnz, n_a_csr_start, _CSR.a_csr);
+  //assignValuesDouble(text_data_from_matrix, _CSR.nnz, n_a_csr_start, _CSR.a_csr);
+  t3.join();
+  t2.join();
+  t1.join();
+
+  /*std::future<void> ftr[3] = {
+      std::async(assignValuesInt, text_data_from_matrix, _CSR.n + 1, prev_find, _CSR.row_ptr),
+      std::async(assignValuesInt, text_data_from_matrix, _CSR.nnz, n_col_start, _CSR.col_ind),
+      std::async(assignValuesDouble, text_data_from_matrix, _CSR.nnz, n_a_csr_start, _CSR.a_csr)
+  };
+  ftr[0].wait();
+  ftr[1].wait();
+  ftr[2].wait();*/
+  
+#else
+  //prev_find = last \n after nnz
+  for (int i = 0; i < _CSR.n + 1; i++) {
+      find = text_data_from_matrix.find(' ', prev_find + 1);
+      n_str = find - prev_find;
+      _CSR.row_ptr[i] = std::stoi(text_data_from_matrix.substr(prev_find + 1, n_str));
+      prev_find = find;
+  }
+
+  //prev_find = n_col_start;
+  //prev_find = last \n after last row_ptr
+  for (int i = 0; i < _CSR.nnz; i++) {
+      find = text_data_from_matrix.find(' ', prev_find + 1);
+      n_str = find - prev_find;
+      _CSR.col_ind[i] = std::stoi(text_data_from_matrix.substr(prev_find + 1, n_str));
+      prev_find = find;
+  }
+
+  //prev_find = n_a_csr_start;
+  //prev_find = last \n after last col_ind
+  for (int i = 0; i < _CSR.nnz; i++) {
+      find = text_data_from_matrix.find(' ', prev_find + 1);
+      n_str = find - prev_find;
+      _CSR.a_csr[i] = std::stod(text_data_from_matrix.substr(prev_find + 1, n_str));
+      prev_find = find;
+  }
+#endif
+  /*
   matrix_file >> _CSR.n;
   matrix_file >> _CSR.nnz;
   
@@ -51,8 +158,9 @@ SparseStructures::CSR SparseStructures::CSR::readModFEMcrsMatrix(std::ifstream& 
   for (unsigned int i = 0u; i < _CSR.nnz; i++) {
       matrix_file >> _CSR.a_csr[i];
   }
-//SparseStructures::CSR::print(_CSR);
-  return _CSR;
+  */
+
+  return;
 }
 
 SparseStructures::CSR::~CSR()
