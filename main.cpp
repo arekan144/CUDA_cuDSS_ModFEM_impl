@@ -8,7 +8,7 @@
 
 int main()
 {
-    std::ifstream matrix_file("./matrixes/modfem_crs_3745223.txt");
+    std::ifstream matrix_file("./matrixes/modfem_crs_61838.txt");
     if (!matrix_file.is_open()) {
         std::cout << "error\n";
         return -1;
@@ -29,7 +29,7 @@ std::cout << "Time difference: " << timer.getDiffInS() << " [s]" << std::endl;
 #ifdef _DEBUG
     SparseStructures::CSR::print(test_csr,100);
 #endif
-
+//test
     return 0;
 
     double* b = new double[test_csr.getN()];
