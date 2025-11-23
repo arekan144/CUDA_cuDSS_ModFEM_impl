@@ -8,7 +8,7 @@
 
 int main()
 {
-    std::ifstream matrix_file("./matrixes/modfem_crs_3745223.txt");
+    std::ifstream matrix_file("./matrixes/modfem_crs_61838.txt");
     if (!matrix_file.is_open()) {
         std::cout << "error\n";
         return -1;
