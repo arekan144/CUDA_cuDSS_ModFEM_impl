@@ -1,10 +1,10 @@
-#include "SparseStructures.hpp"
+#include "SparseStructures.h"
 #include <string>
 
 void SparseStructures::CSR::copyMatrix(const SparseStructures::CSR* inpt, SparseStructures::CSR* dest)
 {
     if (inpt == dest) return;
-//std::cout << inpt->n << " " << inpt->nnz;
+
     dest->n = inpt->n;
     dest->nnz = inpt->nnz;
     if (inpt->n == 0 || inpt->row_ptr == nullptr)
@@ -24,11 +24,11 @@ void SparseStructures::CSR::copyMatrix(const SparseStructures::CSR* inpt, Sparse
         dest->row_ptr = new int[(inpt->n + 1lu)];
         dest->col_ind = new int[inpt->nnz];
 
-        for (unsigned int i = 0u; i < inpt->n + 1lu; i++) {
+        for (auto i = 0u; i < inpt->n + 1lu; i++) {
             dest->row_ptr[i] = inpt->row_ptr[i];
         }
 
-        for (unsigned int i = 0u; i < inpt->nnz; i++) {
+        for (auto i = 0u; i < inpt->nnz; i++) {
             dest->col_ind[i] = inpt->col_ind[i];
             dest->a_csr[i] = inpt->a_csr[i];
         }
@@ -106,39 +106,12 @@ void SparseStructures::CSR::readModFEMcrsMatrixFromFile(CSR& _CSR, std::ifstream
   std::thread t3(assignValuesDouble, text_data_from_matrix, 0, _CSR.nnz,
       1, n_a_csr_start, _CSR.a_csr);
   std::thread t1(assignValuesInt, text_data_from_matrix, _CSR.n + 1, prev_find, _CSR.row_ptr);
-  //assignValuesInt(text_data_from_matrix, _CSR.n + 1, prev_find, _CSR.row_ptr);
   std::thread t2(assignValuesInt, text_data_from_matrix, _CSR.nnz, n_col_start, _CSR.col_ind);
-  //unsigned long long test = (n_a_csr_start - n_col_start) / 2;
-  
-  /*std::thread t3(assignValuesDouble, text_data_from_matrix, 0, _CSR.nnz,
-      2, n_a_csr_start, _CSR.a_csr);
-  std::thread t4(assignValuesDouble, text_data_from_matrix, 1, _CSR.nnz,
-      2, n_a_csr_start, _CSR.a_csr);*/
-  /*std::thread t3(assignValuesDouble, text_data_from_matrix, 0, _CSR.nnz,
-      4, n_a_csr_start, _CSR.a_csr);
-  std::thread t4(assignValuesDouble, text_data_from_matrix, 1, _CSR.nnz,
-      4, n_a_csr_start, _CSR.a_csr);
-  std::thread t5(assignValuesDouble, text_data_from_matrix, 2, _CSR.nnz,
-      4, n_a_csr_start, _CSR.a_csr);
-  std::thread t6(assignValuesDouble, text_data_from_matrix, 3, _CSR.nnz,
-      4, n_a_csr_start, _CSR.a_csr);*/
-  
-  //assignValuesDouble(text_data_from_matrix, _CSR.nnz, n_a_csr_start, _CSR.a_csr);
-  //t6.join();
-  //t5.join();
-  //t4.join();
+
   t3.join();
   t2.join();
   t1.join();
- 
-  /*std::future<void> ftr[3] = {
-      std::async(assignValuesInt, text_data_from_matrix, _CSR.n + 1, prev_find, _CSR.row_ptr),
-      std::async(assignValuesInt, text_data_from_matrix, _CSR.nnz, n_col_start, _CSR.col_ind),
-      std::async(assignValuesDouble, text_data_from_matrix, _CSR.nnz, n_a_csr_start, _CSR.a_csr)
-  };
-  ftr[0].wait();
-  ftr[1].wait();
-  ftr[2].wait();*/
+
   
 #else
   //prev_find = last \n after nnz
@@ -200,7 +173,7 @@ SparseStructures::CSR::~CSR()
 
 #ifdef _DEBUG
 #include <iostream>
-void SparseStructures::CSR::print(const SparseStructures::CSR& _CSR, unsigned int max_nmb)
+void SparseStructures::CSR::print(const SparseStructures::CSR& _CSR, int max_nmb)
 {
     std::cout << "DEBUG print\n";
     if (_CSR.n == 0) {
@@ -209,7 +182,7 @@ void SparseStructures::CSR::print(const SparseStructures::CSR& _CSR, unsigned in
     }
     std::cout << _CSR.n << " " << _CSR.nnz;
     std::cout << std::endl;
-    for (int i = 0u; i < _CSR.n + 1lu && i < max_nmb; i++) {
+    for (int i = 0u; i < _CSR.n + 1 && i < max_nmb; i++) {
         std::cout <<  _CSR.row_ptr[i] << " ";
     }
     std::cout << std::endl;

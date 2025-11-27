@@ -1,6 +1,7 @@
 #pragma once
 
-#include "matrixes/SparseStructures.hpp"
+#include "matrixes/SparseStructures.h"
+#include <Eigen/Sparse>
+#include <Eigen/SparseLU>
 
-extern int doDecompositonAndCompare(SparseStructures::CSR& matrix, double* b,
-    double* x);
+extern void eigenDecompositon(SparseStructures::CSR& matrix, double* b, double** x);
