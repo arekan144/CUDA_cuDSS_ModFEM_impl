@@ -3,5 +3,6 @@
 #include "matrixes/SparseStructures.h"
 #include <Eigen/Sparse>
 #include <Eigen/SparseLU>
+#include <iostream>
 
-extern void eigenDecompositon(SparseStructures::CSR& matrix, double* b, double** x);
+extern int eigenDecompositon(SparseStructures::CSR& matrix, double* b, double** x);

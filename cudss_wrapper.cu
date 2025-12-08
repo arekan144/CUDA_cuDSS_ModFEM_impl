@@ -1,4 +1,7 @@
-#include "cudss_wrapper.cuh"
+#include "cudss_wrapper.h"
+#include <cuda_runtime.h>
+#include <device_launch_parameters.h>
+#include <cudss.h>
 
 #define cleanUpFun() \
 { \
@@ -27,7 +30,7 @@ if (status != cudaSuccess) { \
     return 1; \
 }
 
-static std::string giveCudssString(cudssStatus_t status) { 
+static std::string giveCudssString(cudssStatus_t status) {
     switch (status)
     {
     case CUDSS_STATUS_SUCCESS: return "SUCCESS";
@@ -66,8 +69,7 @@ if(call != CUDSS_STATUS_SUCCESS){ \
 
 
 int cuDSSDecompositionWithSynchronization(ChronoTimer& timer, SparseStructures::CSR& matrix,
-    double* b, double** x,
-    cudssMatrixType_t mtype, cudssMatrixViewType_t mview, cudssIndexBase_t base)
+    double* b, double** x, unsigned short matrix_type, unsigned short view_type, unsigned index_base)
 {
     timer.setStartTime(); // time for starting library, setting device, allocating memory and copying
     cudaError_t cudaStatus = cudaSuccess;
@@ -80,13 +82,11 @@ int cuDSSDecompositionWithSynchronization(ChronoTimer& timer, SparseStructures::
     double* x_d = nullptr;
 
     cudssHandle_t handle = nullptr;
-    cudssConfig_t config = nullptr;
-    cudssData_t data = nullptr;
 
     cudssMatrix_t A_h = nullptr;
-    //cudssMatrixType_t mtype = CUDSS_MTYPE_HERMITIAN;
-    //cudssMatrixViewType_t mview = CUDSS_MVIEW_FULL;
-    //cudssIndexBase_t base = CUDSS_BASE_ZERO;
+    cudssMatrixType_t mtype = static_cast<cudssMatrixType_t>(matrix_type); // info for types can be found cudss.h, or cudss_wrapper.h
+    cudssMatrixViewType_t mview = static_cast<cudssMatrixViewType_t>(view_type);
+    cudssIndexBase_t base = static_cast<cudssIndexBase_t>(index_base);
 
     cudssMatrix_t x_h = nullptr;
     cudssMatrix_t b_h = nullptr;
@@ -125,7 +125,7 @@ int cuDSSDecompositionWithSynchronization(ChronoTimer& timer, SparseStructures::
         cudaMemcpy(values_d, matrix.getAcsr(),
             static_cast<size_t>(matrix.getNNZ()) * sizeof(double), cudaMemcpyHostToDevice),
         cudaStatus, "cudaMemcpy values");
-    
+
     interpretCudaStatus(
         cudaMalloc(&b_d, static_cast<size_t>(matrix.getN()) * sizeof(double)),
         cudaStatus, "cudaMalloc b");
@@ -139,6 +139,7 @@ int cuDSSDecompositionWithSynchronization(ChronoTimer& timer, SparseStructures::
         cudaStatus, "cudaMalloc x");
 
     timer.saveTimeNow();
+
     timer.setStartTime(); // time for creation of csr matrix, dense X and B matrixes
 
     interpretCudssStatus(
@@ -156,8 +157,8 @@ int cuDSSDecompositionWithSynchronization(ChronoTimer& timer, SparseStructures::
             mview,                   // View of the matrix: FULL, UPPER, LOWER
             base),                   // Indexing base: ZERO, ONE
         cudssStatus, "cudssMatrixCreateCsr");
-    
-    
+
+
     interpretCudssStatus(
         cudssMatrixCreateDn(&x_h, matrix.getN(), 1ll, matrix.getN(), x_d, CUDA_R_64F, CUDSS_LAYOUT_COL_MAJOR),
         cudssStatus, "cudssMatrixCreateDn x");
@@ -212,12 +213,14 @@ int cuDSSDecompositionWithSynchronization(ChronoTimer& timer, SparseStructures::
             A_h,
             x_h,
             b_h),
-        cudssStatus, "cudssExecute FACTORIZATION");
-    
+        cudssStatus, "cudssExecute SOLVE");
+
 
     interpretCudaStatus(cudaDeviceSynchronize(), cudaStatus, "cudaDeviceSynchronize");
     timer.saveTimeNow();
     timer.setStartTime(); // time for copying the solution
+
+
     (*x) = new double[matrix.getN()];
     interpretCudaStatus(
         cudaMemcpy((*x), x_d,
@@ -226,5 +229,5 @@ int cuDSSDecompositionWithSynchronization(ChronoTimer& timer, SparseStructures::
     timer.saveTimeNow();
     cleanUpFun();
 
-	return 0;
+    return 0;
 }

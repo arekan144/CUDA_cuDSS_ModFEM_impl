@@ -21,7 +21,7 @@
   <ItemGroup>
     <ClInclude Include="ChronoTimer.h" />
     <ClInclude Include="eigen_wrapper.h" />
-    <ClInclude Include="cudss_wrapper.cuh" />
+    <ClInclude Include="cudss_wrapper.h" />
     <ClInclude Include="matrixes\SparseStructures.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -86,6 +86,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;WIN64;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(CudaToolkitIncludeDir);Eigen5</AdditionalIncludeDirectories>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -96,6 +97,7 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
+      <FastMath>true</FastMath>
     </CudaCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
