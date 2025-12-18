@@ -1,8 +1,5 @@
 #pragma once
-
 #include "matrixes/SparseStructures.h"
-#include <Eigen/Sparse>
-#include <Eigen/SparseLU>
-#include <iostream>
-
-extern int eigenDecompositon(SparseStructures::CSR& matrix, double* b, double** x);
+extern int saveSolution(std::ofstream& file, double* x, const int N);
+extern int loadSolution(std::ifstream& file, double** x, const int N);
+extern int eigenDecompositon(SparseStructures::CSR& matrix, const double* b, double** x);

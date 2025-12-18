@@ -20,15 +20,15 @@ void SparseStructures::CSR::copyMatrix(const SparseStructures::CSR* inpt, Sparse
             delete[] dest->col_ind;
         }
 
-        dest->a_csr = new double[inpt->nnz];
-        dest->row_ptr = new int[(inpt->n + 1lu)];
-        dest->col_ind = new int[inpt->nnz];
+        dest->a_csr = new double[static_cast<size_t>(inpt->nnz)];
+        dest->row_ptr = new int[static_cast<size_t>(inpt->n + 1)];
+        dest->col_ind = new int[static_cast<size_t>(inpt->nnz)];
 
-        for (auto i = 0u; i < inpt->n + 1lu; i++) {
+        for (auto i = 0; i < inpt->n + 1; i++) {
             dest->row_ptr[i] = inpt->row_ptr[i];
         }
 
-        for (auto i = 0u; i < inpt->nnz; i++) {
+        for (auto i = 0; i < inpt->nnz; i++) {
             dest->col_ind[i] = inpt->col_ind[i];
             dest->a_csr[i] = inpt->a_csr[i];
         }
@@ -44,7 +44,23 @@ SparseStructures::CSR& SparseStructures::CSR::operator=(const SparseStructures::
     SparseStructures::CSR::copyMatrix(&_CSR, this);
     return *this;
 }
+#ifdef _DEBUG
 #include <iostream>
+#endif
+bool SparseStructures::CSR::operator==(const SparseStructures::CSR& _CSR)
+{
+    if (_CSR.nnz != this->nnz)
+        return false;
+    for (auto i = 0; i < _CSR.nnz; i++)
+        if (std::abs(_CSR.a_csr[i] - this->a_csr[i]) > 1e-15) {
+#ifdef _DEBUG
+            std::cout << "Data not matching on: "<< i << std::endl;
+#endif
+            return false;
+        }
+    return true;
+}
+
 static void assignValuesInt(std::string& text_data_from_matrix, int maxN,
     unsigned long long prev_find, int* data)
 {
@@ -82,6 +98,12 @@ void SparseStructures::CSR::readModFEMcrsMatrixFromFile(CSR& _CSR, std::ifstream
   std::string text_data_from_matrix(matrix_file.tellg(), 0);
   matrix_file.seekg(0);
   matrix_file.read(const_cast<char*>(text_data_from_matrix.data()), text_data_from_matrix.size());
+
+  if (_CSR.nnz != 0) {
+      delete[] _CSR.col_ind;
+      delete[] _CSR.row_ptr;
+      delete[] _CSR.a_csr;
+  }
 
   unsigned long long prev_find = text_data_from_matrix.find('\n');
   _CSR.n = std::stoi(text_data_from_matrix.substr(0, prev_find));
@@ -161,6 +183,38 @@ void SparseStructures::CSR::readModFEMcrsMatrixFromFile(CSR& _CSR, std::ifstream
   */
 
   return;
+}
+
+void SparseStructures::CSR::saveModFEMcsrMatrixToBinary(CSR& _CSR, std::ofstream& matrix_file)
+{
+    
+    matrix_file.write(reinterpret_cast<char*>(&_CSR.n), sizeof(int));
+    matrix_file.write(reinterpret_cast<char*>(&_CSR.nnz), sizeof(int));
+    matrix_file.write(reinterpret_cast<char*>(_CSR.row_ptr), static_cast<size_t>(_CSR.n + 1) * sizeof(int));
+    matrix_file.write(reinterpret_cast<char*>(_CSR.col_ind), static_cast<size_t>(_CSR.nnz) * sizeof(int));
+    matrix_file.write(reinterpret_cast<char*>(_CSR.a_csr), static_cast<size_t>(_CSR.nnz) * sizeof(double));
+
+}
+
+void SparseStructures::CSR::readModFEMcsrMatrixFromBinary(CSR& _CSR, std::ifstream& matrix_file)
+{
+    if (_CSR.nnz != 0) {
+        delete[] _CSR.col_ind;
+        delete[] _CSR.row_ptr;
+        delete[] _CSR.a_csr;
+    }
+
+    matrix_file.read(reinterpret_cast<char*>(&_CSR.n), sizeof(int));
+    matrix_file.read(reinterpret_cast<char*>(&_CSR.nnz), sizeof(int));
+
+    _CSR.a_csr = new double[static_cast<size_t>(_CSR.nnz)];
+    _CSR.row_ptr = new int[static_cast<size_t>(_CSR.n + 1)];
+    _CSR.col_ind = new int[static_cast<size_t>(_CSR.nnz)];
+
+    matrix_file.read(reinterpret_cast<char*>(_CSR.row_ptr), static_cast<size_t>(_CSR.n + 1) * sizeof(int));
+    matrix_file.read(reinterpret_cast<char*>(_CSR.col_ind), static_cast<size_t>(_CSR.nnz) * sizeof(int));
+    matrix_file.read(reinterpret_cast<char*>(_CSR.a_csr), static_cast<size_t>(_CSR.nnz) * sizeof(double));
+
 }
 
 SparseStructures::CSR::~CSR()

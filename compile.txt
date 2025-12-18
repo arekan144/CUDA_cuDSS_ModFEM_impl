@@ -1,0 +1,17 @@
+nvcc main.cpp ./matrixes/CSR_class.cpp cudss_wrapper.cu eigen_wrapper.cpp -IEigen5 -IEigen5/Eigen \
+-cudart static \
+-I${CUDSS_INCLUDE} \
+-Xlinker=${CUDSS_DIR}/libcudss_static.a \
+-Xlinker=${CTK_DIR}/lib64/libcublas_static.a \
+-Xlinker=${CTK_DIR}/lib64/libcublasLt_static.a \
+-Xlinker=${CTK_DIR}/lib64/libculibos.a \
+-Xcompiler -O3
+
+declare -x CTK_DIR="/usr/local/cuda-13.0/"
+declare -x CUDSS_DIR="/usr/lib/x86_64-linux-gnu/libcudss/13"
+declare -x CUDSS_INCLUDE="/usr/include/libcudss/13"
+
+declare -x CTK_DIR="/usr/local/cuda-12.9/"
+declare -x CUDSS_DIR="/usr/lib/x86_64-linux-gnu/libcudss/12"
+declare -x CUDSS_INCLUDE="/usr/include/libcudss/12"
+

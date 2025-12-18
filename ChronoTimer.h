@@ -1,7 +1,10 @@
 #pragma once
 #include <chrono>
+#include <vector>
 #include <fstream>
-
+#ifdef _DEBUG
+#include <iostream>
+#endif
 class ChronoTimer
 {
 public:
@@ -12,11 +15,17 @@ public:
 	// Save current time point as start
 	inline void setStartTime()
 	{
+#ifdef _DEBUG
+		std::cout << "Starting time\n";
+#endif
 		start.push_back(std::chrono::steady_clock::now());
 	}
 	// Only duration is saved to array (from start(last ind - a) to steady_clock::now())
 	void saveTimeNow(size_t a = 0llu)
 	{
+#ifdef _DEBUG
+		std::cout << "Saving time\n";
+#endif
 		if(a < start.size())
 			counted_times.push_back(std::chrono::steady_clock::now() - *(start.end() - a - 1llu));
 	}
@@ -51,7 +60,8 @@ public:
 	}
 
 private:
-	std::vector < std::chrono::steady_clock::time_point > start;
+	std::vector<std::chrono::steady_clock::time_point> start;
 	std::vector<std::chrono::steady_clock::duration> counted_times;
 	
 };
+

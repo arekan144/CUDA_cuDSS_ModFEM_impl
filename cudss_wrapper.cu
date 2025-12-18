@@ -2,8 +2,18 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 #include <cudss.h>
+#include <cusparse.h>
 
-#define cleanUpFun() \
+#define cleanCUDAFun() \
+{ \
+    cudaFree(colptr_d); \
+    cudaFree(rowptr_d); \
+    cudaFree(values_d); \
+    cudaFree(b_d); \
+    cudaFree(x_d); \
+}
+
+#define cleanCUDSSFun() \
 { \
     cudssMatrixDestroy(A_h); \
     cudssMatrixDestroy(x_h); \
@@ -11,12 +21,7 @@
     cudssDataDestroy(handle, solverData); \
     cudssConfigDestroy(solverConfig); \
     cudssDestroy(handle); \
-    cudaFree(colptr_d); \
-    cudaFree(rowptr_d); \
-    cudaFree(values_d); \
-    cudaFree(b_d); \
-    cudaFree(x_d); \
-} 
+}
 
 #ifdef _DEBUG
 #include <iostream>
@@ -26,7 +31,8 @@ if (status != cudaSuccess) { \
     std::cout << "Error: CUDA API returned on msg { " << msg << " }, details:\n"; \
     std::cout << cudaGetErrorString(cudaGetLastError()); \
     std::cout << std::endl; \
-    cleanUpFun(); \
+    cleanCUDSSFun(); \
+    cleanCUDAFun(); \
     return 1; \
 }
 
@@ -49,27 +55,191 @@ status = call; \
 if (status != CUDSS_STATUS_SUCCESS) { \
     std::cout << "Error: cuDSS API returned error { " << msg << " }\n"; \
     std::cout << "Msg: " << giveCudssString(status) << std::endl; \
-    cleanUpFun(); \
+    cleanCUDSSFun(); \
+    cleanCUDAFun(); \
     return 2; \
 } 
 
 #else
 #define interpretCudaStatus(call, status, msg) \
 if(call != cudaSuccess){ \
-    cleanUpFun(); \
+    cleanCUDSSFun(); \
+    cleanCUDAFun(); \
     return 1; \
 }
 
 #define interpretCudssStatus(call, status, msg) \
 if(call != CUDSS_STATUS_SUCCESS){ \
-    cleanUpFun(); \
+    cleanCUDSSFun(); \
+    cleanCUDAFun(); \
     return 2; \
 }
 #endif
 
 
-int cuDSSDecompositionWithSynchronization(ChronoTimer& timer, SparseStructures::CSR& matrix,
+int cuSparseDeocmposition(SparseStructures::CSR& matrix,
     double* b, double** x, unsigned short matrix_type, unsigned short view_type, unsigned index_base)
+{
+
+    return 0;
+}
+
+int cuDSSDecomposition(SparseStructures::CSR& matrix,
+    double* b, double** x, unsigned short matrix_type, unsigned short view_type, unsigned index_base)
+{
+    cudaError_t cudaStatus = cudaSuccess;
+    cudssStatus_t cudssStatus = CUDSS_STATUS_SUCCESS;
+
+    int* colptr_d = nullptr;
+    int* rowptr_d = nullptr;
+    double* values_d = nullptr;
+    double* b_d = nullptr;
+    double* x_d = nullptr;
+
+    cudssHandle_t handle = nullptr;
+
+    cudssMatrix_t A_h = nullptr;
+    cudssMatrixType_t mtype = static_cast<cudssMatrixType_t>(matrix_type); // info for types can be found cudss.h, or cudss_wrapper.h
+    cudssMatrixViewType_t mview = static_cast<cudssMatrixViewType_t>(view_type);
+    cudssIndexBase_t base = static_cast<cudssIndexBase_t>(index_base);
+
+    cudssMatrix_t x_h = nullptr;
+    cudssMatrix_t b_h = nullptr;
+
+    cudssConfig_t solverConfig = nullptr;
+    cudssData_t solverData = nullptr;
+
+    interpretCudaStatus(
+        cudaSetDevice(0), 
+        cudaStatus, "cudaSetDevice"
+    );
+
+    cudaStream_t stream;
+    interpretCudaStatus(
+        cudaStreamCreate(&stream), 
+        cudaStatus, "cudaStreamCreate");
+
+    interpretCudssStatus(
+        cudssCreate(&handle),
+        cudssStatus, "cudssCreate");
+    
+    interpretCudssStatus(
+        cudssSetStream(handle, stream),
+        cudssStatus, "cudssSetStream");
+
+    interpretCudaStatus(
+        cudaMalloc((&colptr_d), static_cast<size_t>(matrix.getNNZ()) * sizeof(int)),
+        cudaStatus, "cudaMalloc colptr");
+    interpretCudaStatus(
+        cudaMalloc(&rowptr_d, static_cast<size_t>(matrix.getN() + 1u) * sizeof(int)),
+        cudaStatus, "cudaMalloc rowptr");
+    interpretCudaStatus(
+        cudaMalloc(&values_d, static_cast<size_t>(matrix.getNNZ()) * sizeof(double)),
+        cudaStatus, "cudaMalloc values");
+    interpretCudaStatus(
+        cudaMalloc(&b_d, static_cast<size_t>(matrix.getN()) * sizeof(double)),
+        cudaStatus, "cudaMalloc b");
+    interpretCudaStatus(
+        cudaMalloc(&x_d, static_cast<size_t>(matrix.getN()) * sizeof(double)),
+        cudaStatus, "cudaMalloc x");
+
+    interpretCudaStatus(
+        cudaMemcpy(colptr_d, matrix.getColInd(),
+            static_cast<size_t>(matrix.getNNZ()) * sizeof(int), cudaMemcpyHostToDevice),
+        cudaStatus, "cudaMemcpy colptr");
+    interpretCudaStatus(
+        cudaMemcpy(rowptr_d, matrix.getRowOff(),
+            static_cast<size_t>(matrix.getN() + 1u) * sizeof(int), cudaMemcpyHostToDevice),
+        cudaStatus, "cudaMemcpy rowptr");
+    interpretCudaStatus(
+        cudaMemcpy(values_d, matrix.getAcsr(),
+            static_cast<size_t>(matrix.getNNZ()) * sizeof(double), cudaMemcpyHostToDevice),
+        cudaStatus, "cudaMemcpy values");
+    interpretCudaStatus(
+        cudaMemcpy(b_d, b,
+            static_cast<size_t>(matrix.getN()) * sizeof(double), cudaMemcpyHostToDevice),
+        cudaStatus, "cudaMemcpy b");
+
+    interpretCudssStatus(
+        cudssMatrixCreateCsr(&A_h,   // [out] Matrix handle
+            matrix.getN(),           // Number of rows
+            matrix.getN(),           // Number of columns
+            matrix.getNNZ(),         // Number of non-zeros
+            rowptr_d,                // Row start offsets
+            nullptr,                 // Row end offsets [Usefull when batch-loading, otherwise null]
+            colptr_d,                // Column indices of the matrix
+            values_d,                // Values of the dense matrix (nonzeros)
+            CUDA_R_32I,              // Index type of the matrix [(7.1) ONLY valid IndexTypes: R_32I, R_64I !]
+            CUDA_R_64F,              // Data type of the matrix
+            mtype,                   // Type of the matrix: HERMITIAN, GENERAL, SYMMETRIC
+            mview,                   // View of the matrix: FULL, UPPER, LOWER
+            base),                   // Indexing base: ZERO, ONE
+        cudssStatus, "cudssMatrixCreateCsr");
+
+    interpretCudssStatus(
+        cudssMatrixCreateDn(&x_h, matrix.getN(), 1ll, matrix.getN(), x_d, CUDA_R_64F, CUDSS_LAYOUT_COL_MAJOR),
+        cudssStatus, "cudssMatrixCreateDn x");
+    interpretCudssStatus(
+        cudssMatrixCreateDn(&b_h, matrix.getN(), 1ll, matrix.getN(), b_d, CUDA_R_64F, CUDSS_LAYOUT_COL_MAJOR),
+        cudssStatus, "cudssMatrixCreateDn b");
+
+    interpretCudssStatus(
+        cudssConfigCreate(&solverConfig),
+        cudssStatus, "cudssConfigCreate");
+    interpretCudssStatus(
+        cudssDataCreate(handle, &solverData),
+        cudssStatus, "cudssDataCreate");
+
+    interpretCudssStatus(
+        cudssExecute(handle,
+            CUDSS_PHASE_ANALYSIS,
+            solverConfig,
+            solverData,
+            A_h,
+            x_h,
+            b_h),
+        cudssStatus, "cudssExecute ANALYSIS");
+
+    interpretCudssStatus(
+        cudssExecute(handle,
+            CUDSS_PHASE_FACTORIZATION,
+            solverConfig,
+            solverData,
+            A_h,
+            x_h,
+            b_h),
+        cudssStatus, "cudssExecute FACTORIZATION");
+
+    interpretCudssStatus(
+        cudssExecute(handle,
+            CUDSS_PHASE_SOLVE,
+            solverConfig,
+            solverData,
+            A_h,
+            x_h,
+            b_h),
+        cudssStatus, "cudssExecute SOLVE");
+    cleanCUDSSFun();
+    
+    interpretCudaStatus(
+        cudaStreamSynchronize(stream),
+        cudaStatus, "cudaStreamSynchronize");
+    interpretCudaStatus(
+        cudaStreamDestroy(stream),
+        cudaStatus, "cudaStreamDestroy");
+
+    (*x) = new double[matrix.getN()];
+    interpretCudaStatus(
+        cudaMemcpy((*x), x_d,
+            static_cast<size_t>(matrix.getN()) * sizeof(double), cudaMemcpyDeviceToHost),
+        cudaStatus, "cudaMemcpy x");
+    
+    cleanCUDAFun();
+    return 0;
+}
+
+int cuDSSDecompositionWithSynchronization(ChronoTimer& timer, SparseStructures::CSR& matrix,
+    double* b, double** x, short matrix_type, unsigned short view_type, unsigned index_base)
 {
     timer.setStartTime(); // time for starting library, setting device, allocating memory and copying
     cudaError_t cudaStatus = cudaSuccess;
@@ -95,8 +265,8 @@ int cuDSSDecompositionWithSynchronization(ChronoTimer& timer, SparseStructures::
     cudssData_t solverData = nullptr;
 
     interpretCudaStatus(
-        cudaSetDevice(0), cudaStatus, "cudaSetDevice"
-    );
+        cudaSetDevice(0),
+        cudaStatus, "cudaSetDevice");
 
     interpretCudssStatus(
         cudssCreate(&handle),
@@ -227,7 +397,8 @@ int cuDSSDecompositionWithSynchronization(ChronoTimer& timer, SparseStructures::
             static_cast<size_t>(matrix.getN()) * sizeof(double), cudaMemcpyDeviceToHost),
         cudaStatus, "cudaMemcpy x");
     timer.saveTimeNow();
-    cleanUpFun();
+    cleanCUDSSFun();
+    cleanCUDAFun();
 
     return 0;
 }

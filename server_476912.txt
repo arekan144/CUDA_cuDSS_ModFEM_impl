@@ -1,0 +1,281 @@
+Opening modfem_crs_476912_binary 2
+Started Eigen. Done.
+For attempt 0
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12814, percent: 2.68687 %
+Inside given tolerance: 1e-11 29536, percent: 6.19318 %
+Inside given tolerance: 1e-10 218497, percent: 45.815 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 1
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12811, percent: 2.68624 %
+Inside given tolerance: 1e-11 29523, percent: 6.19045 %
+Inside given tolerance: 1e-10 218400, percent: 45.7946 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 2
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12815, percent: 2.68708 %
+Inside given tolerance: 1e-11 29552, percent: 6.19653 %
+Inside given tolerance: 1e-10 218612, percent: 45.8391 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 3
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12811, percent: 2.68624 %
+Inside given tolerance: 1e-11 29537, percent: 6.19339 %
+Inside given tolerance: 1e-10 218490, percent: 45.8135 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 4
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12810, percent: 2.68603 %
+Inside given tolerance: 1e-11 29532, percent: 6.19234 %
+Inside given tolerance: 1e-10 218438, percent: 45.8026 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 5
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12813, percent: 2.68666 %
+Inside given tolerance: 1e-11 29529, percent: 6.19171 %
+Inside given tolerance: 1e-10 218480, percent: 45.8114 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 6
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12813, percent: 2.68666 %
+Inside given tolerance: 1e-11 29546, percent: 6.19527 %
+Inside given tolerance: 1e-10 218478, percent: 45.811 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 7
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12809, percent: 2.68582 %
+Inside given tolerance: 1e-11 29535, percent: 6.19297 %
+Inside given tolerance: 1e-10 218477, percent: 45.8108 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 8
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12811, percent: 2.68624 %
+Inside given tolerance: 1e-11 29534, percent: 6.19276 %
+Inside given tolerance: 1e-10 218489, percent: 45.8133 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 9
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12811, percent: 2.68624 %
+Inside given tolerance: 1e-11 29523, percent: 6.19045 %
+Inside given tolerance: 1e-10 218465, percent: 45.8082 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+Time stamps saved under file: modfem_crs_476912_binary_0_test_time.txt
+Saving result to txt file under modfem_crs_476912_binary_solved. Done.
+Opening modfem_crs_476912_binary 3
+File opended. Computing.
+Opening previous solution: modfem_crs_476912_binary_solved
+For attempt 0
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12824, percent: 2.68897 %
+Inside given tolerance: 1e-11 29815, percent: 6.25168 %
+Inside given tolerance: 1e-10 221059, percent: 46.3522 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 1
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12825, percent: 2.68918 %
+Inside given tolerance: 1e-11 29809, percent: 6.25042 %
+Inside given tolerance: 1e-10 221012, percent: 46.3423 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 2
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12824, percent: 2.68897 %
+Inside given tolerance: 1e-11 29804, percent: 6.24937 %
+Inside given tolerance: 1e-10 221038, percent: 46.3478 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 3
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12827, percent: 2.68959 %
+Inside given tolerance: 1e-11 29824, percent: 6.25356 %
+Inside given tolerance: 1e-10 220954, percent: 46.3301 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 4
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12828, percent: 2.6898 %
+Inside given tolerance: 1e-11 29834, percent: 6.25566 %
+Inside given tolerance: 1e-10 221145, percent: 46.3702 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 5
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12826, percent: 2.68939 %
+Inside given tolerance: 1e-11 29817, percent: 6.2521 %
+Inside given tolerance: 1e-10 221031, percent: 46.3463 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 6
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12824, percent: 2.68897 %
+Inside given tolerance: 1e-11 29809, percent: 6.25042 %
+Inside given tolerance: 1e-10 220999, percent: 46.3396 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 7
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12824, percent: 2.68897 %
+Inside given tolerance: 1e-11 29811, percent: 6.25084 %
+Inside given tolerance: 1e-10 220972, percent: 46.3339 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 8
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12824, percent: 2.68897 %
+Inside given tolerance: 1e-11 29819, percent: 6.25252 %
+Inside given tolerance: 1e-10 221038, percent: 46.3478 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 9
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12824, percent: 2.68897 %
+Inside given tolerance: 1e-11 29805, percent: 6.24958 %
+Inside given tolerance: 1e-10 220969, percent: 46.3333 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+Time stamps saved under file: modfem_crs_476912_binary_1_test_time.txt
+Opening modfem_crs_476912_binary 3
+File opended. Computing.
+Opening previous solution: modfem_crs_476912_binary_solved
+For attempt 0
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12824, percent: 2.68897 %
+Inside given tolerance: 1e-11 29818, percent: 6.25231 %
+Inside given tolerance: 1e-10 221027, percent: 46.3454 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 1
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12825, percent: 2.68918 %
+Inside given tolerance: 1e-11 29812, percent: 6.25105 %
+Inside given tolerance: 1e-10 221082, percent: 46.357 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 2
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12825, percent: 2.68918 %
+Inside given tolerance: 1e-11 29818, percent: 6.25231 %
+Inside given tolerance: 1e-10 221066, percent: 46.3536 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 3
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12824, percent: 2.68897 %
+Inside given tolerance: 1e-11 29809, percent: 6.25042 %
+Inside given tolerance: 1e-10 221031, percent: 46.3463 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 4
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12826, percent: 2.68939 %
+Inside given tolerance: 1e-11 29820, percent: 6.25273 %
+Inside given tolerance: 1e-10 221039, percent: 46.348 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 5
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12824, percent: 2.68897 %
+Inside given tolerance: 1e-11 29796, percent: 6.24769 %
+Inside given tolerance: 1e-10 220895, percent: 46.3178 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 6
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12822, percent: 2.68855 %
+Inside given tolerance: 1e-11 29799, percent: 6.24832 %
+Inside given tolerance: 1e-10 220980, percent: 46.3356 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 7
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12824, percent: 2.68897 %
+Inside given tolerance: 1e-11 29799, percent: 6.24832 %
+Inside given tolerance: 1e-10 221022, percent: 46.3444 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 8
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12825, percent: 2.68918 %
+Inside given tolerance: 1e-11 29825, percent: 6.25377 %
+Inside given tolerance: 1e-10 221067, percent: 46.3538 %
+Inside given tolerance: 1e-09 476912, percent: 100 %
+For attempt 9
+Inside given tolerance: 1e-16 12393, percent: 2.59859 %
+Inside given tolerance: 1e-15 12393, percent: 2.59859 %
+Inside given tolerance: 1e-14 12393, percent: 2.59859 %
+Inside given tolerance: 1e-13 12393, percent: 2.59859 %
+Inside given tolerance: 1e-12 12825, percent: 2.68918 %
+Inside given tolerance: 1e-11 29814, percent: 6.25147 %
+Inside given tolerance: 1e-10 221011, percent: 46.3421 %
+Inside given tolerance: 1e-09 476912, percent: 100 %

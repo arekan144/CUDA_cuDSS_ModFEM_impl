@@ -1,7 +1,29 @@
 #include "eigen_wrapper.h"
-
+#include <Eigen/Sparse>
+#include <Eigen/SparseLU>
+#include <iostream>
+#include <fstream>
 using namespace Eigen;
-int eigenDecompositon(SparseStructures::CSR& matrix, double* b, double** x)
+
+int saveSolution(std::ofstream& file, double* x, const int N)
+{
+	if(N < 0) return 1;
+    	file.write(reinterpret_cast<char*>(const_cast<int*>(&N)), sizeof(int));
+	file.write(reinterpret_cast<char*>(x), static_cast<size_t>(N) * sizeof(double));
+	return 0;
+}
+int loadSolution(std::ifstream& file, double** x, const int N)
+{
+	if(N < 0) return 1;
+	int conf = 0;
+	file.read(reinterpret_cast<char*>(&conf), sizeof(int));
+	if(conf != N) return 2;
+	(*x) = new double[static_cast<size_t>(N)];
+	file.read(reinterpret_cast<char*>((*x)), static_cast<size_t>(N) * sizeof(double));
+	return 0;
+}	
+
+int eigenDecompositon(SparseStructures::CSR& matrix, const double* b, double** x)
 {
     try {
         // Copy CSR to Eigen SparseMatrix, utilizing built-in Map class
@@ -25,7 +47,7 @@ int eigenDecompositon(SparseStructures::CSR& matrix, double* b, double** x)
         solver.factorize(A);
         x_e = solver.solve(b_e);
 
-        *x = new double[matrix.getN()];
+        *x = new double[static_cast<size_t>(matrix.getN())];
 
         for (auto i = 0; i < matrix.getN(); i++)
             (*x)[i] = x_e[i];

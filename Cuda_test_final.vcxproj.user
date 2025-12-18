@@ -8,4 +8,8 @@
     <LocalDebuggerEnvironment>CUDSS_LOG_LEVEL=0</LocalDebuggerEnvironment>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Cuda_cudss_cusolve|x64'">
+    <LocalDebuggerEnvironment>CUDSS_LOG_LEVEL=0</LocalDebuggerEnvironment>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
 </Project>

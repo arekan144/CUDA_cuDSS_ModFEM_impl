@@ -6,6 +6,7 @@ namespace SparseStructures
 {
 	/*
 	* Simple wrapper for CSR - compresed sparse row format
+	* sizeof(int) = 4
 	*/
 	class CSR {
 	public:
@@ -18,26 +19,31 @@ namespace SparseStructures
 		CSR(const CSR& _CSR);
 		// Deep assigment operator
 		SparseStructures::CSR& operator=(const SparseStructures::CSR& _CSR);
-		// Reads file in special, 4 lines format 
+		bool operator==(const SparseStructures::CSR& _CSR);
+		// Reads file in special, 4 lines format N, NNZ, ROW, COL, VAL 
 		static void readModFEMcrsMatrixFromFile(CSR& _CSR, std::ifstream& matrix_file);
+		// Naive binary save. No compression. N, NNZ, ROW, COL, VAL
+		static void saveModFEMcsrMatrixToBinary(CSR& _CSR, std::ofstream& matrix_file);
+		// Reads saved non compressed binary files. In order: sizeof(int) N, sizeof(int) NNZ, sizeof(int)*(N+1) row pointers, sizeof(int)*NNZ column indices, sizeof(double)*NNZ non zero values
+		static void readModFEMcsrMatrixFromBinary(CSR& _CSR, std::ifstream& matrix_file);
 
-		double* SparseStructures::CSR::getAcsr()
+		double* getAcsr()
 		{
 			return a_csr;
 		}
-		int* SparseStructures::CSR::getRowOff()
+		int* getRowOff()
 		{
 			return row_ptr;
 		}
-		int* SparseStructures::CSR::getColInd()
+		int* getColInd()
 		{
 			return col_ind;
 		}
-		unsigned int SparseStructures::CSR::getN()
+		int getN()
 		{
 			return n;
 		}
-		unsigned int SparseStructures::CSR::getNNZ()
+		int getNNZ()
 		{
 			return nnz;
 		}
