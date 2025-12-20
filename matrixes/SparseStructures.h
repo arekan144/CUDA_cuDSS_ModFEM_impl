@@ -1,4 +1,6 @@
 #pragma once
+#ifndef SPARSESTRUCTURES
+#define SPARSESTRUCTURES
 #include <fstream>
 #include <thread>
 #include <future>
@@ -63,4 +65,7 @@ namespace SparseStructures
 		int n;				// real(non-compressed) size of the matrix
 		int nnz;			// number of non zero values
 	};
+
+	
 }
+#endif

@@ -111,6 +111,8 @@ private:
 			inputs['t'].second = 1;
 		else if (inputs['t'].first == "s" || inputs['t'].first == "S" || inputs['t'].first == "save")
 			inputs['t'].second = 2;
+		else if (inputs['t'].first == "p" || inputs['t'].first == "P" || inputs['t'].first == "Pattern")
+			inputs['t'].second = 3;
 		else
 			throw std::string("Error: Wrong program type.");
 

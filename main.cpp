@@ -1,19 +1,38 @@
 #include <iostream>
 #include <fstream>
 #include <random>
+#include <string>
 
+#include "matrixes/SparseStructures.h"
 #include "cudss_wrapper.h"
 #include "eigen_wrapper.h"
-#include "matrixes/SparseStructures.h"
+
 #include "ChronoTimer.h"
 #include "ArgumentParser.h"
 
 #ifndef HOW_MUCH
 #define HOW_MUCH 10llu 
 #endif
-#include <string>
 
-static int __load_matrix(std::string& file_name, short file_type, SparseStructures::CSR& _CSR) {
+static int __saveSolution(std::ofstream& file, double* x, const int N)
+{
+	if (N < 0) return 1;
+	file.write(reinterpret_cast<char*>(const_cast<int*>(&N)), sizeof(int));
+	file.write(reinterpret_cast<char*>(x), static_cast<size_t>(N) * sizeof(double));
+	return 0;
+}
+static int __loadSolution(std::ifstream& file, double** x, const int N)
+{
+	if (N < 0) return 1;
+	int conf = 0;
+	file.read(reinterpret_cast<char*>(&conf), sizeof(int));
+	if (conf != N) return 2;
+	(*x) = new double[static_cast<size_t>(N)];
+	file.read(reinterpret_cast<char*>((*x)), static_cast<size_t>(N) * sizeof(double));
+	return 0;
+}
+
+static int __loadMatrix(std::string& file_name, short file_type, SparseStructures::CSR& _CSR) {
 	std::ifstream matrix_file;
 	
 	switch (file_type) {
@@ -31,6 +50,7 @@ static int __load_matrix(std::string& file_name, short file_type, SparseStructur
 	}
 	std::cout << "File opended. Computing.\n";
 	matrix_file.close();
+	return 0;
 }
 
 static void __compare(SparseStructures::CSR& _CSR, double* x_1, double* x_2) {
@@ -60,10 +80,24 @@ static void __compare(SparseStructures::CSR& _CSR, double* x_1, double* x_2) {
 	} while (k != data_points);
 }
 
-static int __cudss_and_eigen(std::string& file_name, short file_type, short nskip_eigen, short matrix_type, std::string solve_name)
+static int __getSparcityPatterns(std::string& file_name, short file_type, short matrix_type) {
+	SparseStructures::CSR test_csr;
+	__loadMatrix(file_name, file_type, test_csr);
+	double* b = new double[test_csr.getN()];
+
+	for (auto i = 0; i < test_csr.getN(); i++)
+		b[i] = 1.;
+	double* x_1 = nullptr, * x_2 = nullptr;
+	cuDSSOnlyAnalisysAndSpPattern(test_csr, b, &x_1, matrix_type, 0, 0);
+	delete[] b;
+	delete[] x_1;
+	return 0;
+}
+
+static int __cudssAndEigen(std::string& file_name, short file_type, short nskip_eigen, short matrix_type, std::string solve_name)
 {
 	SparseStructures::CSR test_csr;
-	__load_matrix(file_name, file_type, test_csr);
+	__loadMatrix(file_name, file_type, test_csr);
 
 #ifdef _DEBUG
 	SparseStructures::CSR::print(test_csr, 100);
@@ -71,7 +105,7 @@ static int __cudss_and_eigen(std::string& file_name, short file_type, short nski
 
 	double* b = new double[test_csr.getN()];
 
-	for (auto i = 0u; i < test_csr.getN(); i++)
+	for (auto i = 0; i < test_csr.getN(); i++)
 		b[i] = 1.;
 
 	double* x_1 = nullptr, * x_2 = nullptr;
@@ -95,7 +129,7 @@ static int __cudss_and_eigen(std::string& file_name, short file_type, short nski
 			nskip_eigen = static_cast<short>(0);
 			break;
 		}
-		int ret = loadSolution(solution_file, &x_2, test_csr.getN());
+		int ret = __loadSolution(solution_file, &x_2, test_csr.getN());
 		if (ret) {
 			std::cout << "File reading failed.\n Skipping eigenDecomposition.\n";
 			nskip_eigen = static_cast<short>(0);
@@ -137,7 +171,7 @@ static int __cudss_and_eigen(std::string& file_name, short file_type, short nski
 		std::cout << "Saving result to txt file under " << value_name << ". ";
 		std::ofstream solution_file(value_name, std::ofstream::binary);
 		if (solution_file.is_open()) {
-			saveSolution(solution_file, x_2, test_csr.getN());
+			__saveSolution(solution_file, x_2, test_csr.getN());
 			solution_file.close();
 			std::cout << "Done.\n";
 		}
@@ -150,15 +184,16 @@ static int __cudss_and_eigen(std::string& file_name, short file_type, short nski
 	delete[] b;
 	delete[] x_1;
 	delete[] x_2;
+	return 0;
 }
 
-static int __cudss_and_cusolve(std::string& file_name, short file_type, short nskip_cusolve, short matrix_type, std::string solve_name)
+static int __cudssAndCusolve(std::string& file_name, short file_type, short nskip_cusolve, short matrix_type, std::string solve_name)
 {
 
 	return 0;
 }
 
-static int __save_to_binary(std::string file_name) {
+static int __saveToBinary(std::string file_name) {
 	std::cout << "Saving as binary from file " << file_name << std::endl;
 	std::ifstream load_file(file_name, std::ifstream::binary);
 	if (!load_file.is_open()) {
@@ -212,7 +247,6 @@ int main(int argc, char* argv[]) {
 		return -3;
 	}
 	
-	return 0;
 
 	/*if (!file_name_set) {
 		std::cout << "Error: you need to provide file name.\n";
@@ -338,14 +372,14 @@ int main(int argc, char* argv[]) {
 	matrix_file.close();
 	switch (load_ops) {
 	case static_cast<short>(0):
-		return  __cudss_and_eigen(file_name, file_type, evaluation_type, matrix_type, solve_name);
-		break;
+		return  __cudssAndEigen(file_name, file_type, evaluation_type, matrix_type, solve_name);
 	case static_cast<short>(1):
-
-		break;
+		std::cout << "Not implemented\n";
+		return 0;
 	case static_cast<short>(2):
-		return __save_to_binary(file_name);
-		break;
+		return __saveToBinary(file_name);
+	case static_cast<short>(3):
+		return __getSparcityPatterns(file_name, file_type, matrix_type);
 	default:
 		break;
 	}

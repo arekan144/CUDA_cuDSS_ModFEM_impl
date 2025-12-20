@@ -5,24 +5,6 @@
 #include <fstream>
 using namespace Eigen;
 
-int saveSolution(std::ofstream& file, double* x, const int N)
-{
-	if(N < 0) return 1;
-    	file.write(reinterpret_cast<char*>(const_cast<int*>(&N)), sizeof(int));
-	file.write(reinterpret_cast<char*>(x), static_cast<size_t>(N) * sizeof(double));
-	return 0;
-}
-int loadSolution(std::ifstream& file, double** x, const int N)
-{
-	if(N < 0) return 1;
-	int conf = 0;
-	file.read(reinterpret_cast<char*>(&conf), sizeof(int));
-	if(conf != N) return 2;
-	(*x) = new double[static_cast<size_t>(N)];
-	file.read(reinterpret_cast<char*>((*x)), static_cast<size_t>(N) * sizeof(double));
-	return 0;
-}	
-
 int eigenDecompositon(SparseStructures::CSR& matrix, const double* b, double** x)
 {
     try {

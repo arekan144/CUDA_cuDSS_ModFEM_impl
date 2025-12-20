@@ -2,6 +2,9 @@
 #include "ChronoTimer.h"
 // for more debug info set CUDSS_LOG_LEVEL=5 in debug env
 
+extern int cuDSSOnlyAnalisysAndSpPattern(SparseStructures::CSR& matrix,
+    double* b, double** x, short matrix_type, short view_type, short index_base);
+
 /* cuDSSDecompositionWithSynchronization makes synchronization calls (cudaDeviceSynchronize)
   individual testing of:
   * CUDA[init,aloc,copy] + cuDSS[init],
@@ -13,14 +16,14 @@
   Recomended timer size = above count (6)
 */
 extern int cuDSSDecompositionWithSynchronization(ChronoTimer& timer, SparseStructures::CSR& matrix,
-    double* b, double** x, short matrix_type = 0, unsigned short view_type = 0, unsigned index_base = 0);
+    double* b, double** x, short matrix_type = 0, short view_type = 0, short index_base = 0);
 
 /* cuDSSDecomposition without synchronization,
     init, aloc, copy, create wrappers, compute: analisys, factorization, solve.
 
 */
 extern int cuDSSDecomposition(SparseStructures::CSR& matrix,
-    double* b, double** x, unsigned short matrix_type = 0, unsigned short view_type = 0, unsigned index_base = 0);
+    double* b, double** x, short matrix_type = 0, short view_type = 0, short index_base = 0);
 
 /*
 typedef enum cudssMatrixType_t {
