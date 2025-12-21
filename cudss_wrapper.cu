@@ -4,8 +4,8 @@
 #include <cudss.h>
 #include <cusparse.h>
 
-//#define STB_IMAGE_WRITE_IMPLEMENTATION
-//#include "stb_image_write.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 
 #define cleanCUDAFun() { \
     cudaFree(colptr_d); \
@@ -79,7 +79,10 @@ if(call != CUDSS_STATUS_SUCCESS){ \
 }
 #endif
 
-__global__ void __fillImage(int* ) {
+typedef unsigned char byte;
+
+__global__ void __fillImage(const int n, const int nnz, const int dataW, const int dataH, int* rowptr_post, int* colind_post, byte* img) {
+   
 
 }
 
@@ -90,103 +93,102 @@ __global__ void __fillImage(int* ) {
 };
 
 #include <iostream>
-int saveSparcityImage(int n, int nnz, int* rowptr_post, int* colind_post) {
+int saveSparcityImage(std::string image_name, const int n, const int nnz, int* rowptr, int* colind, int* rowptr_post, int* colind_post, const int max_res ) {
 
-    size_t image_dimn = 1024;
-    if (n < 1024)
-        image_dimn = static_cast<size_t>(n);
-
-    typedef unsigned char byte;
-    
-    byte* data_d = nullptr;
-    byte* data_h = nullptr;
-    
+   // cudaError_t cudaStatus = cudaSuccess;
+    int image_dimn = max_res;
+    if (n < max_res)
+        image_dimn = n;
+    //std::cout << "ssi " << image_dimn << "\n";
+    //byte* data_d = nullptr;
 
     /*interpretCudaStatus(
-        cudaMalloc((&data_d), sizeof(byte) * image_dimn * image_dimn),
+        cudaMalloc((&data_d), sizeof(byte) * static_cast<size_t>(image_dimn * image_dimn)),
         cudaStatus,
         "cudaMalloc :img: data_d",
         cleanImageData,
         nothing);*/
-    /*
-    interpretCudaStatus(
-        cudaMalloc((&rowptr_cudss), row_size),
-        cudaStatus,
-        "cudaMalloc :img: data_d",
-        cleanImageData,
-        nothing);
-    interpretCudaStatus(
-        cudaMalloc((&colptr_cudss), col_size),
-        cudaStatus,
-        "cudaMalloc :img: data_d",
-        cleanImageData,
-        nothing);
-        */
-
-    /*size_t verify;
-    interpretCudssStatus(
-        cudssDataGet(handle,
-            matrix_data,
-            CUDSS_DATA_PERM_REORDER_ROW,
-            &rowptr_cudss,
-            row_size,
-            &verify),
-        cudssStatus,
-        "cudssDataGet :img: perm_reorder_row",
-        cleanImageData,
-        nothing
-    );
-
-    if (verify != row_size)
-    {
-        cleanImageData();
-        return -1;
-    }
+    byte* data_h = new byte[image_dimn*image_dimn*3];
     
-    interpretCudssStatus(
-        cudssDataGet(handle,
-            matrix_data,
-            CUDSS_DATA_PERM_REORDER_COL,
-            &colptr_cudss,
-            col_size,
-            &verify),
-        cudssStatus,
-        "cudssDataGet :img: perm_reorder_col",
-        cleanImageData,
-        nothing
-    );
-    if (verify != col_size)
+    std::ofstream file("spr_row_col.txt");
+
+    for (int i = 0; i < n; i++)
+        file << rowptr_post[i] << ' ';
+    file << '\n';
+
+    for (int i = 0; i < n; i++)
+        file << colind_post[i] << ' ';
+    file << '\n';
+
+    file.close();
+
+    //__fillImage<<< >>>(n, nnz, rowptr_post, colind_post, data_d);
+
+    // make COO from CRS
+    // ...?
+    // profit
+
+    for (int i = 0; i < image_dimn * image_dimn; i++)
+        data_h[i * 3] = data_h[i * 3 + 1] = data_h[i * 3 + 2] = static_cast<byte>(0);
+
+    int y = 0;
+    double ratio = static_cast<double>(n) / image_dimn;
+    for (int i = 0; i < nnz; i++)
     {
-        cleanImageData();
-        return -1;
+        if (i >= rowptr[y + 1]) y++;
+        //colind[i];
+        //y;
+        
+        int x_l = colind_post[colind[i]] * ratio;
+        int y_l = rowptr_post[y] * ratio;
+
+        data_h[(x_l + y_l * image_dimn) * 3] = data_h[(x_l + y_l * image_dimn) * 3 + 1] = data_h[(x_l + y_l * image_dimn) * 3 + 2] = static_cast<byte>(255);
+
     }
-    
-    int* rowptr_h = new int[static_cast<size_t>(n + 1)];
-    int* colptr_h = new int[static_cast<size_t>(nnz)];
 
-    cudaMemcpy(rowptr_h, rowptr_cudss, row_size, cudaMemcpyDeviceToHost);
-    cudaMemcpy(colptr_h, colptr_cudss, col_size, cudaMemcpyDeviceToHost);
+    //int block = n / image_dimn;
+    //int* ind = new int[image_dimn + 1];
+    //ind[0] = 0;
+    /*for (int i = 1; i < image_dimn; i++)
+        ind[i] = ind[i-1] + block;
+    ind[image_dimn] = n;
+    int werereValues = 0;
+    for (int i = 0; i < image_dimn; i++) {
+        int yind_s = ind[i];
+        int yind_e = ind[i+1];
+        //std::cout << rowptr_post[yind_s] << " " 
+        //        << rowptr_post[yind_e] <<"\n";
+        for (int j = 0; j < image_dimn; j++) {
+            int xind_s = ind[j];
+            int xind_e = ind[j + 1];
+            
+            bool wereValue = false;
+            int wereValues = 0;
+            for (int y = yind_s; y < yind_e; y++) {
 
-    for (auto i = 0llu; i < static_cast<size_t>(5); i++)
-    {
-        auto ky = static_cast<size_t>(rowptr_h[i + 1llu] - rowptr_h[i]);
-        for (auto j = 0llu; j < ky; j++)
-        {
-            std::cout << colptr_h[static_cast<size_t>(rowptr_h[i])] << ' ';
+                for (int x = xind_s; x < xind_e; x++) {
+                    
+                }
+            }
+            werereValues += wereValues;
+            data_h[(j + i * image_dimn) * 3] = data_h[(j + i * image_dimn) * 3 + 1] = data_h[(j + i * image_dimn) * 3 + 2] = static_cast<byte>(255 * wereValue);
+
         }
-        std::cout << '\n';
-    }
 
-    delete[] rowptr_h;
-    delete[] colptr_h;
-*/
+    }*/
 
-    cleanImageData();
+
+    std::cout << "Saving " << image_name << '\n';
+    /*std::cout << "WerereValues: " << werereValues << '\n';*/
+    stbi_write_png(image_name.c_str(), image_dimn, image_dimn, 3, data_h, image_dimn * 3);
+    
+    delete[] data_h;
+    //cleanImageData();
     return 0;
 }
 #include <stdio.h>
 int cuDSSOnlyAnalisysAndSpPattern(SparseStructures::CSR& matrix,
-    double* b, double** x, short matrix_type, short view_type, short index_base) {
+    double* b, double** x, short matrix_type, short view_type, short index_base, int max_res) {
     cudaError_t cudaStatus = cudaSuccess;
     cudssStatus_t cudssStatus = CUDSS_STATUS_SUCCESS;
 
@@ -313,7 +315,9 @@ int cuDSSOnlyAnalisysAndSpPattern(SparseStructures::CSR& matrix,
         cudssDataCreate(handle, &solverData),
         cudssStatus, "cudssDataCreate",
         cleanCUDAFun, cleanCUDSSFun);
-
+    // CUDSS_PHASE_ANALYSIS
+    // CUDSS_PHASE_REORDERING
+    // CUDSS_PHASE_SYMBOLIC_FACTORIZATION
     interpretCudssStatus(
         cudssExecute(handle,
             CUDSS_PHASE_ANALYSIS,
@@ -325,22 +329,55 @@ int cuDSSOnlyAnalisysAndSpPattern(SparseStructures::CSR& matrix,
         cudssStatus, "cudssExecute ANALYSIS",
         cleanCUDAFun, cleanCUDSSFun);
 
-    cudaDeviceSynchronize();
-
-    size_t sizeWritten;
-    std::cout << matrix.getN() << "\n";
+    size_t sizeWritten = 0llu;
     size_t perm_s = matrix.getN() * sizeof(int);
-    int* perm_col = nullptr;
- 
-    std::cout << "COL\n";
-    interpretCudaStatus(
-        cudaMalloc(&perm_col, perm_s),
-        cudaStatus, "cudaMalloc x",
-        cleanCUDAFun, cleanCUDSSFun);
+    //int* perm_col = nullptr;
+    int* perm_col = new int[matrix.getN()];
+    int* perm_row = new int[matrix.getN()+1];
+    for (int i = 0; i < matrix.getN(); i++) {
+        perm_row[i] = i;
+        perm_col[i] = i;
+    }
+    perm_row[matrix.getN()] = matrix.getN();
+    std::cout << "KES " << max_res << "\n";
 
-    interpretCudssStatus(cudssDataGet(handle, solverData, CUDSS_DATA_PERM_REORDER_COL, perm_col,
-        perm_s, &sizeWritten), cudssStatus, "cudssDataGet for reorder row perm",
+    saveSparcityImage("before_reorder.png", matrix.getN(), matrix.getNNZ(), matrix.getRowOff(), matrix.getColInd(), perm_row, perm_col, max_res);
+
+    interpretCudssStatus(cudssDataGet(handle,
+        solverData, CUDSS_DATA_PERM_REORDER_COL, perm_col,
+        perm_s, &sizeWritten), cudssStatus, "cudssDataGet for reorder COL perm",
         cleanCUDSSFun, cleanCUDAFun);
+    interpretCudssStatus(cudssDataGet(handle,
+        solverData, CUDSS_DATA_PERM_REORDER_ROW, perm_row,
+        perm_s, &sizeWritten), cudssStatus, "cudssDataGet for reorder ROW perm",
+        cleanCUDSSFun, cleanCUDAFun);
+    std::cout << sizeWritten << "\n";
+    std::cout << "col:\n";
+    for (int i = 0; i < matrix.getN(); i++)
+    {
+        std::cout << perm_col[i] << ' ';
+    }
+    std::cout << std::endl;
+    std::cout << "row:\n";
+    for (int i = 0; i < matrix.getN(); i++)
+    {
+        std::cout << perm_row[i] << ' ';
+    }
+    std::cout << std::endl;
+    /*interpretCudssStatus(cudssDataGet(handle,
+        solverData, CUDSS_DATA_PERM_MATCHING, perm_row,
+        perm_s, &sizeWritten), cudssStatus, "cudssDataGet for reorder ROW perm",
+        cleanCUDSSFun, cleanCUDAFun);
+    std::cout << sizeWritten << "\n";*/
+
+    saveSparcityImage("after_reorder.png", matrix.getN(), matrix.getNNZ(), matrix.getRowOff(), matrix.getColInd(), perm_col, perm_col, max_res);
+
+    //saveSparcityImage("after_reorder.png", matrix.getN(), matrix.getNNZ(), matrix.getRowOff(), matrix.getColInd(), perm_col, perm_row, max_res);
+    
+    /*interpretCudssStatus(cudssDataGet(handle, solverData, CUDSS_DATA_PERM_REORDER_COL, perm_col,
+        perm_s, &sizeWritten), cudssStatus, "cudssDataGet for reorder col perm",
+        cleanCUDSSFun, cleanCUDAFun);
+    saveSparcityImage("after_sfc.png", matrix.getN(), matrix.getNNZ(), matrix.getRowOff(), matrix.getColInd(), perm_col, perm_row, max_res);*/
 
     /*int* perm_row = nullptr;
     std::cout << "ROW\n";
@@ -355,7 +392,9 @@ int cuDSSOnlyAnalisysAndSpPattern(SparseStructures::CSR& matrix,
 
     //saveSparcityImage(matrix.getN(), matrix.getNNZ(), handle, solverData);
 
-    cudaFree(perm_col);
+    //cudaFree(perm_col);
+    delete[] perm_col;
+    delete[] perm_row;
 
     cleanCUDSSFun();
     cleanCUDAFun();

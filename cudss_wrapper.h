@@ -2,8 +2,11 @@
 #include "ChronoTimer.h"
 // for more debug info set CUDSS_LOG_LEVEL=5 in debug env
 
+#define RES 1024
+extern int saveSparcityImage(std::string image_name, const int n, const int nnz, int* rowptr, int* colind,  int* rowptr_post, int* colind_post, const int max_res = RES);
+
 extern int cuDSSOnlyAnalisysAndSpPattern(SparseStructures::CSR& matrix,
-    double* b, double** x, short matrix_type, short view_type, short index_base);
+    double* b, double** x, short matrix_type, short view_type, short index_base, int max_res = RES);
 
 /* cuDSSDecompositionWithSynchronization makes synchronization calls (cudaDeviceSynchronize)
   individual testing of:

@@ -73,6 +73,7 @@ static void assignValuesInt(std::string& text_data_from_matrix, int maxN,
         prev_find = find;
     }
     
+
 }
 
 static void assignValuesDouble(std::string& text_data_from_matrix, int startN, int maxN, int jump,
@@ -82,14 +83,15 @@ static void assignValuesDouble(std::string& text_data_from_matrix, int startN, i
     auto n_str = 0llu;
     for (auto i = startN; i < maxN; i += jump) {
         if(i != 0)
-        for (auto j = 1; j < jump; j++) 
-            prev_find = find = text_data_from_matrix.find(' ', prev_find + 1);
+            for (auto j = 1; j < jump; j++) 
+                prev_find = find = text_data_from_matrix.find(' ', prev_find + 1);
         find = text_data_from_matrix.find(' ', prev_find + 1);
         n_str = find - prev_find;
         data[i] = std::stod(text_data_from_matrix.substr(prev_find + 1, n_str));
+
         prev_find = find;
     }
-    
+
 }
 #define THREADED
 void SparseStructures::CSR::readModFEMcrsMatrixFromFile(CSR& _CSR, std::ifstream& matrix_file)

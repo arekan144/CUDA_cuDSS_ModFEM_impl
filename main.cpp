@@ -80,7 +80,7 @@ static void __compare(SparseStructures::CSR& _CSR, double* x_1, double* x_2) {
 	} while (k != data_points);
 }
 
-static int __getSparcityPatterns(std::string& file_name, short file_type, short matrix_type) {
+static int __getSparcityPatterns(std::string& file_name, short file_type, short matrix_type, int max_res = 0) {
 	SparseStructures::CSR test_csr;
 	__loadMatrix(file_name, file_type, test_csr);
 	double* b = new double[test_csr.getN()];
@@ -88,7 +88,11 @@ static int __getSparcityPatterns(std::string& file_name, short file_type, short 
 	for (auto i = 0; i < test_csr.getN(); i++)
 		b[i] = 1.;
 	double* x_1 = nullptr, * x_2 = nullptr;
-	cuDSSOnlyAnalisysAndSpPattern(test_csr, b, &x_1, matrix_type, 0, 0);
+	std::cout << max_res << "\n";
+	if(max_res)
+		cuDSSOnlyAnalisysAndSpPattern(test_csr, b, &x_1, matrix_type, 0, 0, max_res);
+	else
+		cuDSSOnlyAnalisysAndSpPattern(test_csr, b, &x_1, matrix_type, 0, 0);
 	delete[] b;
 	delete[] x_1;
 	return 0;
@@ -379,7 +383,23 @@ int main(int argc, char* argv[]) {
 	case static_cast<short>(2):
 		return __saveToBinary(file_name);
 	case static_cast<short>(3):
-		return __getSparcityPatterns(file_name, file_type, matrix_type);
+	//{
+	//	SparseStructures::CSR matrix;
+	//	__loadMatrix(file_name, file_type, matrix);
+	//	size_t perm_s = matrix.getN() * sizeof(int);
+	//	//int* perm_col = nullptr;
+	//	int* perm_col = new int[matrix.getN()];
+	//	int* perm_row = new int[matrix.getN()+1];
+
+	//	for (auto i = 0; i < matrix.getN(); i++) {
+	//		perm_col[i] = perm_row[i] = i;
+	//	}
+	//	perm_row[matrix.getN()] = matrix.getN();
+	//	saveSparcityImage("test.png", matrix.getN(), matrix.getNNZ(), matrix.getRowOff(), matrix.getColInd(), perm_col, perm_row, 2048);
+	//	delete[] perm_col;
+	//	delete[] perm_row;
+	//}
+		return __getSparcityPatterns(file_name, file_type, matrix_type, 1210);
 	default:
 		break;
 	}
