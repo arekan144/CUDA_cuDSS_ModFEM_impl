@@ -6,6 +6,7 @@ NLINK = nvcc
 
 ARCH = -arch=sm_60
 #OPS = -O3
+NOPS = --fdevice-time-trace $(shell od -An -N2 -i /dev/random | tr -d ' ')trace 
 OPS = -g -D _DEBUG=1
 
 NAME = "defaultnametoreplace"
@@ -47,15 +48,15 @@ libSparseStructures.a: ./matrixes/CSR_class.cpp ./matrixes/SparseStructures.h
 	$(ARH) crs $@ SparseStructures.o
 
 libCUDSSWrapper.a: cudss_wrapper.cu cudss_wrapper.h
-	$(NCOMP) $(ARCH) -Xcompiler $(OPS) -o cudss_wrapper.o -c cudss_wrapper.cu 
-	$(NLINK) $(ARCH) -Xcompiler $(OPS) -dlink -o cudss_wrapper.dlink.o cudss_wrapper.o
-	$(NLINK) $(ARCH) -Xcompiler $(OPS) -lib -o libCUDSSWrapper.a cudss_wrapper.o cudss_wrapper.dlink.o
+	$(NCOMP) -Xcompiler $(OPS) -o cudss_wrapper.o -c cudss_wrapper.cu $(NOPS)
+	$(NLINK) -Xcompiler $(OPS) -dlink -o cudss_wrapper.dlink.o cudss_wrapper.o $(NOPS) 
+	$(NLINK) -Xcompiler $(OPS) -lib -o libCUDSSWrapper.a cudss_wrapper.o cudss_wrapper.dlink.o $(NOPS) 
 
 main.o: main.cpp
 	$(COMP) $(OPS) -o $@ -c $<
 
 main.exe: main.o libEigenWrapper.a libSparseStructures.a libCUDSSWrapper.a
-	$(NLINK) $(SNLIBINCL) $^ -o $@
+	$(NLINK) $(SNLIBINCL) $^ -o $@ $(NOPS)
 
 #$(NLINK) $(ARCH) $^ $(NLIBS) $(NINCL) -o $@
 #$(LINK) $^ -I${CUDSS_INCLUDE} -Xlinker=${CUDSS_DIR}/libcudss_static.a 
