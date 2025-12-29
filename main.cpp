@@ -383,23 +383,27 @@ int main(int argc, char* argv[]) {
 	case static_cast<short>(2):
 		return __saveToBinary(file_name);
 	case static_cast<short>(3):
-	//{
-	//	SparseStructures::CSR matrix;
-	//	__loadMatrix(file_name, file_type, matrix);
-	//	size_t perm_s = matrix.getN() * sizeof(int);
-	//	//int* perm_col = nullptr;
-	//	int* perm_col = new int[matrix.getN()];
-	//	int* perm_row = new int[matrix.getN()+1];
+		//{
+		//	SparseStructures::CSR matrix;
+		//	__loadMatrix(file_name, file_type, matrix);
+		//	size_t perm_s = matrix.getN() * sizeof(int);
+		//	//int* perm_col = nullptr;
+		//	int* perm_col = new int[matrix.getN()];
+		//	int* perm_row = new int[matrix.getN()+1];
 
-	//	for (auto i = 0; i < matrix.getN(); i++) {
-	//		perm_col[i] = perm_row[i] = i;
-	//	}
-	//	perm_row[matrix.getN()] = matrix.getN();
-	//	saveSparcityImage("test.png", matrix.getN(), matrix.getNNZ(), matrix.getRowOff(), matrix.getColInd(), perm_col, perm_row, 2048);
-	//	delete[] perm_col;
-	//	delete[] perm_row;
-	//}
-		return __getSparcityPatterns(file_name, file_type, matrix_type, 1210);
+		//	for (auto i = 0; i < matrix.getN(); i++) {
+		//		perm_col[i] = perm_row[i] = i;
+		//	}
+		//	perm_row[matrix.getN()] = matrix.getN();
+		//	saveSparcityImage("test.png", matrix.getN(), matrix.getNNZ(), matrix.getRowOff(), matrix.getColInd(), perm_col, perm_row, 2048);
+		//	delete[] perm_col;
+		//	delete[] perm_row;
+		//}
+	{
+		int pk = 1024;
+		if (!solve_name.empty()) pk = std::stoi(solve_name);
+		return __getSparcityPatterns(file_name, file_type, matrix_type, pk);
+	}
 	default:
 		break;
 	}

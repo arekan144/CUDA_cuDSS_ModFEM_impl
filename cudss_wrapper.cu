@@ -122,60 +122,32 @@ int saveSparcityImage(std::string image_name, const int n, const int nnz, int* r
 
     file.close();
 
-    //__fillImage<<< >>>(n, nnz, rowptr_post, colind_post, data_d);
-
-    // make COO from CRS
-    // ...?
-    // profit
-
     for (int i = 0; i < image_dimn * image_dimn; i++)
         data_h[i * 3] = data_h[i * 3 + 1] = data_h[i * 3 + 2] = static_cast<byte>(0);
 
     int y = 0;
-    double ratio = static_cast<double>(n) / image_dimn;
+    double ratio = image_dimn / static_cast<double>(n);
     for (int i = 0; i < nnz; i++)
     {
         if (i >= rowptr[y + 1]) y++;
-        //colind[i];
-        //y;
         
         int x_l = colind_post[colind[i]] * ratio;
         int y_l = rowptr_post[y] * ratio;
-
-        data_h[(x_l + y_l * image_dimn) * 3] = data_h[(x_l + y_l * image_dimn) * 3 + 1] = data_h[(x_l + y_l * image_dimn) * 3 + 2] = static_cast<byte>(255);
-
+       // std::cout << colind_post[colind[i]] << " " << rowptr_post[y] << "\n";
+        switch (data_h[(x_l + y_l * image_dimn) * 3])
+        {
+        case static_cast<byte>(0):
+            data_h[(x_l + y_l * image_dimn) * 3] = data_h[(x_l + y_l * image_dimn) * 3 + 1] = data_h[(x_l + y_l * image_dimn) * 3 + 2] = static_cast<byte>(128);
+            break;
+        case static_cast<byte>(254): case static_cast<byte>(255):
+            data_h[(x_l + y_l * image_dimn) * 3] = data_h[(x_l + y_l * image_dimn) * 3 + 1] = data_h[(x_l + y_l * image_dimn) * 3 + 2] = static_cast<byte>(255);
+            break;
+        default:
+            data_h[(x_l + y_l * image_dimn) * 3] = data_h[(x_l + y_l * image_dimn) * 3 + 1] = data_h[(x_l + y_l * image_dimn) * 3 + 2] = data_h[(x_l + y_l * image_dimn) * 3 + 2] + 2;
+            break;
+        }
     }
 
-    //int block = n / image_dimn;
-    //int* ind = new int[image_dimn + 1];
-    //ind[0] = 0;
-    /*for (int i = 1; i < image_dimn; i++)
-        ind[i] = ind[i-1] + block;
-    ind[image_dimn] = n;
-    int werereValues = 0;
-    for (int i = 0; i < image_dimn; i++) {
-        int yind_s = ind[i];
-        int yind_e = ind[i+1];
-        //std::cout << rowptr_post[yind_s] << " " 
-        //        << rowptr_post[yind_e] <<"\n";
-        for (int j = 0; j < image_dimn; j++) {
-            int xind_s = ind[j];
-            int xind_e = ind[j + 1];
-            
-            bool wereValue = false;
-            int wereValues = 0;
-            for (int y = yind_s; y < yind_e; y++) {
-
-                for (int x = xind_s; x < xind_e; x++) {
-                    
-                }
-            }
-            werereValues += wereValues;
-            data_h[(j + i * image_dimn) * 3] = data_h[(j + i * image_dimn) * 3 + 1] = data_h[(j + i * image_dimn) * 3 + 2] = static_cast<byte>(255 * wereValue);
-
-        }
-
-    }*/
 
 
     std::cout << "Saving " << image_name << '\n';
@@ -304,6 +276,7 @@ int cuDSSOnlyAnalisysAndSpPattern(SparseStructures::CSR& matrix,
         cudssConfigCreate(&solverConfig),
         cudssStatus, "cudssConfigCreate",
         cleanCUDAFun, cleanCUDSSFun);
+
     cudssAlgType_t reorder_alg = CUDSS_ALG_DEFAULT;
     interpretCudssStatus(
     cudssConfigSet(solverConfig, CUDSS_CONFIG_REORDERING_ALG,
@@ -339,10 +312,10 @@ int cuDSSOnlyAnalisysAndSpPattern(SparseStructures::CSR& matrix,
         perm_col[i] = i;
     }
     perm_row[matrix.getN()] = matrix.getN();
-    std::cout << "KES " << max_res << "\n";
+    //std::cout << "KES " << max_res << "\n";
 
     saveSparcityImage("before_reorder.png", matrix.getN(), matrix.getNNZ(), matrix.getRowOff(), matrix.getColInd(), perm_row, perm_col, max_res);
-
+    
     interpretCudssStatus(cudssDataGet(handle,
         solverData, CUDSS_DATA_PERM_REORDER_COL, perm_col,
         perm_s, &sizeWritten), cudssStatus, "cudssDataGet for reorder COL perm",
@@ -351,48 +324,52 @@ int cuDSSOnlyAnalisysAndSpPattern(SparseStructures::CSR& matrix,
         solverData, CUDSS_DATA_PERM_REORDER_ROW, perm_row,
         perm_s, &sizeWritten), cudssStatus, "cudssDataGet for reorder ROW perm",
         cleanCUDSSFun, cleanCUDAFun);
-    std::cout << sizeWritten << "\n";
-    std::cout << "col:\n";
-    for (int i = 0; i < matrix.getN(); i++)
-    {
-        std::cout << perm_col[i] << ' ';
-    }
-    std::cout << std::endl;
-    std::cout << "row:\n";
-    for (int i = 0; i < matrix.getN(); i++)
-    {
-        std::cout << perm_row[i] << ' ';
-    }
-    std::cout << std::endl;
-    /*interpretCudssStatus(cudssDataGet(handle,
-        solverData, CUDSS_DATA_PERM_MATCHING, perm_row,
-        perm_s, &sizeWritten), cudssStatus, "cudssDataGet for reorder ROW perm",
-        cleanCUDSSFun, cleanCUDAFun);
-    std::cout << sizeWritten << "\n";*/
 
-    saveSparcityImage("after_reorder.png", matrix.getN(), matrix.getNNZ(), matrix.getRowOff(), matrix.getColInd(), perm_col, perm_col, max_res);
+    cudaStreamSynchronize(stream);
 
-    //saveSparcityImage("after_reorder.png", matrix.getN(), matrix.getNNZ(), matrix.getRowOff(), matrix.getColInd(), perm_col, perm_row, max_res);
-    
-    /*interpretCudssStatus(cudssDataGet(handle, solverData, CUDSS_DATA_PERM_REORDER_COL, perm_col,
-        perm_s, &sizeWritten), cudssStatus, "cudssDataGet for reorder col perm",
-        cleanCUDSSFun, cleanCUDAFun);
-    saveSparcityImage("after_sfc.png", matrix.getN(), matrix.getNNZ(), matrix.getRowOff(), matrix.getColInd(), perm_col, perm_row, max_res);*/
+    /*cudaStreamSynchronize(stream);
 
-    /*int* perm_row = nullptr;
-    std::cout << "ROW\n";
-    interpretCudaStatus(
-        cudaMalloc(&perm_col, perm_s),
-        cudaStatus, "cudaMalloc x",
-        cleanCUDAFun, cleanCUDSSFun);
+    void* colptr_d_post = nullptr;
+    void* rowptr_d_post = nullptr;
+    long long nnz_post;
+    long long n_post;
+    std::cout << giveCudssString(cudssMatrixGetCsr(A_h, nullptr, &n_post, &nnz_post, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr)) << std::endl;
 
-    interpretCudssStatus(cudssDataGet(handle, solverData, CUDSS_DATA_PERM_REORDER_ROW, perm_row,
-        perm_s, &sizeWritten), cudssStatus, "cudssDataGet for reorder row perm",
-        cleanCUDSSFun, cleanCUDAFun); // not needed, sizeWritten returns 0*/
+    cudaMalloc(&colptr_d_post, nnz_post*sizeof(int));
+    cudaMalloc(&rowptr_d_post, (n_post+1) * sizeof(int));
 
-    //saveSparcityImage(matrix.getN(), matrix.getNNZ(), handle, solverData);
+    std::cout << giveCudssString(cudssMatrixGetCsr(A_h,
+        nullptr,
+        nullptr,
+        nullptr,
+        &rowptr_d_post,
+        nullptr,
+        &colptr_d_post,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr)) << " ";
 
-    //cudaFree(perm_col);
+    int* colptr_h_post = new int[nnz_post];
+    int* rowptr_h_post = new int[n_post + 1];
+
+    cudaMemcpy(colptr_h_post, colptr_d_post, nnz_post * sizeof(int), cudaMemcpyDeviceToHost);
+    cudaMemcpy(rowptr_h_post, rowptr_d_post, (n_post+1) * sizeof(int), cudaMemcpyDeviceToHost);
+
+    cudaFree(colptr_d_post);
+    cudaFree(rowptr_d_post);
+
+    if (nnz_post != matrix.getNNZ() || n_post != matrix.getN()) std::cout << " error";
+    for (int i = 0; i < nnz_post; i++)
+        if(colptr_h_post[i]!=matrix.getColInd()[i]) std::cout << "!";
+    std::cout << "\n";
+    delete[] colptr_h_post;
+    delete[] rowptr_h_post;*/
+
+    saveSparcityImage("after_reorder.png", matrix.getN(), matrix.getNNZ(), matrix.getRowOff(), matrix.getColInd(), perm_row, perm_col, max_res);
+
     delete[] perm_col;
     delete[] perm_row;
 
