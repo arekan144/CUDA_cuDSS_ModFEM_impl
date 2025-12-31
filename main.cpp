@@ -89,10 +89,13 @@ static int __getSparcityPatterns(std::string& file_name, short file_type, short 
 		b[i] = 1.;
 	double* x_1 = nullptr, * x_2 = nullptr;
 	std::cout << max_res << "\n";
+	
 	if(max_res)
-		cuDSSOnlyAnalisysAndSpPattern(test_csr, b, &x_1, matrix_type, 0, 0, max_res);
+		for(short algorithm = 0; algorithm < 4; algorithm++)
+			cuDSSOnlyAnalisysAndSpPattern(test_csr, b, &x_1, matrix_type, algorithm, max_res);
 	else
-		cuDSSOnlyAnalisysAndSpPattern(test_csr, b, &x_1, matrix_type, 0, 0);
+		for (short algorithm = 0; algorithm < 4; algorithm++)
+			cuDSSOnlyAnalisysAndSpPattern(test_csr, b, &x_1, matrix_type, algorithm);
 	delete[] b;
 	delete[] x_1;
 	return 0;

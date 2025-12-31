@@ -3,7 +3,7 @@
 #include <device_launch_parameters.h>
 #include <cudss.h>
 #include <cusparse.h>
-
+#include <string>
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
@@ -161,7 +161,7 @@ int saveSparcityImage(std::string image_name, const int n, const int nnz, int* r
 }
 #include <stdio.h>
 int cuDSSOnlyAnalisysAndSpPattern(SparseStructures::CSR& matrix,
-    double* b, double** x, short matrix_type, short view_type, short index_base, int max_res) {
+    double* b, double** x, short matrix_type, short algorytm, int max_res) {
     cudaError_t cudaStatus = cudaSuccess;
     cudssStatus_t cudssStatus = CUDSS_STATUS_SUCCESS;
 
@@ -175,8 +175,8 @@ int cuDSSOnlyAnalisysAndSpPattern(SparseStructures::CSR& matrix,
 
     cudssMatrix_t A_h = nullptr;
     cudssMatrixType_t mtype = static_cast<cudssMatrixType_t>(matrix_type); // info for types can be found cudss.h, or cudss_wrapper.h
-    cudssMatrixViewType_t mview = static_cast<cudssMatrixViewType_t>(view_type);
-    cudssIndexBase_t base = static_cast<cudssIndexBase_t>(index_base);
+    cudssMatrixViewType_t mview = static_cast<cudssMatrixViewType_t>(0);
+    cudssIndexBase_t base = static_cast<cudssIndexBase_t>(0);
 
     cudssMatrix_t x_h = nullptr;
     cudssMatrix_t b_h = nullptr;
@@ -278,7 +278,7 @@ int cuDSSOnlyAnalisysAndSpPattern(SparseStructures::CSR& matrix,
         cudssStatus, "cudssConfigCreate",
         cleanCUDAFun, cleanCUDSSFun);
 
-    cudssAlgType_t reorder_alg = CUDSS_ALG_DEFAULT;
+    cudssAlgType_t reorder_alg = static_cast<cudssAlgType_t>(algorytm);
     interpretCudssStatus(
     cudssConfigSet(solverConfig, CUDSS_CONFIG_REORDERING_ALG,
         &reorder_alg, sizeof(cudssAlgType_t)),
@@ -314,9 +314,11 @@ int cuDSSOnlyAnalisysAndSpPattern(SparseStructures::CSR& matrix,
     }
     perm_row[matrix.getN()] = matrix.getN();
     //std::cout << "KES " << max_res << "\n";
-
-    saveSparcityImage("before_reorder.png", matrix.getN(), matrix.getNNZ(), matrix.getRowOff(), matrix.getColInd(), perm_row, perm_col, max_res);
-    
+    if (!algorytm)
+    {
+        std::string before_reorder = std::to_string(algorytm) + "_before_reorder.png";
+        saveSparcityImage(before_reorder, matrix.getN(), matrix.getNNZ(), matrix.getRowOff(), matrix.getColInd(), perm_row, perm_col, max_res);
+    }
     interpretCudssStatus(cudssDataGet(handle,
         solverData, CUDSS_DATA_PERM_REORDER_COL, perm_col,
         perm_s, &sizeWritten), cudssStatus, "cudssDataGet for reorder COL perm",
@@ -368,8 +370,8 @@ int cuDSSOnlyAnalisysAndSpPattern(SparseStructures::CSR& matrix,
     std::cout << "\n";
     delete[] colptr_h_post;
     delete[] rowptr_h_post;*/
-
-    saveSparcityImage("after_reorder.png", matrix.getN(), matrix.getNNZ(), matrix.getRowOff(), matrix.getColInd(), perm_row, perm_col, max_res);
+    std::string after_reorder = std::to_string(algorytm) + "_after_reorder.png";
+    saveSparcityImage(after_reorder, matrix.getN(), matrix.getNNZ(), matrix.getRowOff(), matrix.getColInd(), perm_row, perm_col, max_res);
 
     delete[] perm_col;
     delete[] perm_row;
