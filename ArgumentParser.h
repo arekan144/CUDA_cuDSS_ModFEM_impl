@@ -120,15 +120,17 @@ private:
 			inputs['e'].second = 1;
 		else if (inputs['e'].first == "n" || inputs['e'].first == "N" || inputs['e'].first == "no") 
 			inputs['e'].second = 0;
-		else if (inputs['e'].first == "l" || inputs['e'].first == "L" || inputs['e'].first == "load") {
+		else if (inputs['e'].first == "s" || inputs['e'].first == "S" || inputs['e'].first == "save")
 			inputs['e'].second = 2;
+		else if (inputs['e'].first == "l" || inputs['e'].first == "L" || inputs['e'].first == "load") {
+			inputs['e'].second = 3;
 			if(inputs['s'].first.empty())
 				throw std::string("Error: evaluation option set to load, but no file was specified.");
 		}
 		else
 			throw std::string("Error: Wrong evaluation option type.");
 		
-		if (inputs['e'].second != 2 && !inputs['s'].first.empty())
+		if (inputs['e'].second != 3 && !inputs['s'].first.empty())
 			std::cout << "Warning: Solution filed provieded, with option " << inputs['e'].first << '\n';
 
 	}
