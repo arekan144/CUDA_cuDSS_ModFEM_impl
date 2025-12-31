@@ -5,9 +5,9 @@ LINK = g++
 NLINK = nvcc
 
 ARCH = -arch=sm_60
-#OPS = -O3
-NOPS = --fdevice-time-trace $(shell od -An -N2 -i /dev/random | tr -d ' ')trace 
-OPS = -g -D _DEBUG=1
+OPS = -O3
+#NOPS = --fdevice-time-trace $(shell od -An -N2 -i /dev/random | tr -d ' ')trace 
+#OPS = -g -D _DEBUG=1
 
 NAME = "defaultnametoreplace"
 

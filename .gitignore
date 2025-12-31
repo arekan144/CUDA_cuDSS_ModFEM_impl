@@ -9,3 +9,6 @@ Eigen5/*
 *.a
 *.exe
 *.xls?
+*.txt
+*_binary*
+*.png
