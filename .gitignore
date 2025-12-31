@@ -4,4 +4,8 @@ Cuda_test_final
 matrixes/*.txt
 matrixes/*_binary
 Eigen5/*
+*.json
+*.o
+*.a
+*.exe
 *.xls?
