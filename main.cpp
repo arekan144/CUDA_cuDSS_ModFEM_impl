@@ -87,7 +87,7 @@ static int __getSparcityPatterns(std::string& file_name, short file_type, short 
 
 	for (auto i = 0; i < test_csr.getN(); i++)
 		b[i] = 1.;
-	double* x_1 = nullptr, * x_2 = nullptr;
+	double* x_1 = nullptr;
 	std::cout << max_res << "\n";
 	
 	if(max_res)
@@ -124,34 +124,33 @@ static int __cudssAndEigen(std::string& file_name, short file_type, short nskip_
 		eigenDecompositon(test_csr, b, &x_2);
 		std::cout << "Done.\n";
 		break;
-		// provided file with previously calculated solution
-	case static_cast<short>(3):
+	
+	case static_cast<short>(3): // Provided file with previously calculated solution
 	{
 		std::cout << "Opening previous solution: " << solve_name << std::endl;
 
 		std::ifstream solution_file(solve_name, std::ifstream::binary);
 
-		if (!solution_file.is_open()) {
+		if (!solution_file.is_open()) { // Can't open, skip solution
 			std::cout << "Cannot open file " << solve_name << ".\n Skipping eigenDecomposition.\n";
 			nskip_eigen = static_cast<short>(0);
 			break;
 		}
 		int ret = __loadSolution(solution_file, &x_2, test_csr.getN());
-		if (ret) {
+		if (ret) { // Can't read, skip solution
 			std::cout << "File reading failed.\n Skipping eigenDecomposition.\n";
 			nskip_eigen = static_cast<short>(0);
 		}
 		solution_file.close();
 	}
 	break;
-	// skipping decomposition using Eigen library
-	case static_cast<short>(0):
+	case static_cast<short>(0): // Skipping decomposition using Eigen library
 	default:
 		std::cout << "Skipped eigenDecomposition" << "\n";
 		break;
 	}
 
-	// How many times decomposition should be called. HOW_MUCH is defined at the begining of this file, if not provided by command line.
+	// How many times decomposition should be called. HOW_MUCH is defined at the begining of this file.
 	constexpr size_t how_much = HOW_MUCH;
 	ChronoTimer timer(6llu * how_much);
 	for (auto i = 0llu; i < how_much; i++) {
@@ -166,13 +165,14 @@ static int __cudssAndEigen(std::string& file_name, short file_type, short nskip_
 	size_t last_slash = file_name.rfind('/', file_name.size() - 1) + 1;
 	std::string time_name = file_name.substr(last_slash, file_name.rfind(".txt") - last_slash) + "_" + std::to_string(matrix_type) + "_test_time.txt";
 
+	// Save timings
 	std::ofstream timefile(time_name);
 	if (timefile.is_open()) {
 		timer.saveTimesToFile(timefile, 6);
 		timefile.close();
 		std::cout << "Time stamps saved under file: " << time_name << "\n";
 	}
-
+	// Save solution as binary file
 	if (nskip_eigen == static_cast<short>(2)) {
 		std::string value_name = file_name.substr(last_slash, file_name.rfind(".txt") - last_slash) + "_solved";
 		std::cout << "Saving result to txt file under " << value_name << ". ";
@@ -238,10 +238,12 @@ int main(int argc, char* argv[]) {
 	std::string solve_name;
 
 	try {
+		// Parse arguments
 		ArgumentParser parser(argc, argv);
 #ifdef _DEBUG
 		parser.print();
 #endif
+		// Gather arguments
 		file_name = parser.getArgument('f').first;
 		file_type = parser.getArgument('l').second;
 		evaluation_type = parser.getArgument('e').second;
@@ -256,6 +258,7 @@ int main(int argc, char* argv[]) {
 	
 	std::cout << "Opening " << file_name << " " << std::endl;
 	std::ifstream matrix_file(file_name);
+	// End program if can't open matrix file 
 	if (!matrix_file.is_open()) {
 		std::cout << "Cannot open file " << file_name << "\n";
 		return -1;
@@ -263,30 +266,18 @@ int main(int argc, char* argv[]) {
 	matrix_file.close();
 	switch (load_ops) {
 	case static_cast<short>(0):
+		// Evaluate cudss solution with eigen's sparse solution
 		return  __cudssAndEigen(file_name, file_type, evaluation_type, matrix_type, solve_name);
 	case static_cast<short>(1):
+		// Not implemented cudss solution with cusolvesp
 		std::cout << "Not implemented\n";
 		return 0;
 	case static_cast<short>(2):
+		// 
 		return __saveToBinary(file_name);
 	case static_cast<short>(3):
-		//{
-		//	SparseStructures::CSR matrix;
-		//	__loadMatrix(file_name, file_type, matrix);
-		//	size_t perm_s = matrix.getN() * sizeof(int);
-		//	//int* perm_col = nullptr;
-		//	int* perm_col = new int[matrix.getN()];
-		//	int* perm_row = new int[matrix.getN()+1];
-
-		//	for (auto i = 0; i < matrix.getN(); i++) {
-		//		perm_col[i] = perm_row[i] = i;
-		//	}
-		//	perm_row[matrix.getN()] = matrix.getN();
-		//	saveSparcityImage("test.png", matrix.getN(), matrix.getNNZ(), matrix.getRowOff(), matrix.getColInd(), perm_col, perm_row, 2048);
-		//	delete[] perm_col;
-		//	delete[] perm_row;
-		//}
 	{
+		// Set up for extraction of sparcity pattern
 		int pk = 1024;
 		if (!solve_name.empty()) pk = std::stoi(solve_name);
 		return __getSparcityPatterns(file_name, file_type, matrix_type, pk);

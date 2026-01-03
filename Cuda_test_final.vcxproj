@@ -30,10 +30,13 @@
     <ClInclude Include="matrixes\SparseStructures.h" />
     <ClInclude Include="stb_image_write.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include=".clang-uml" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1C5AFDFE-D401-EC2E-7EF4-2904F7CF1A7C}</ProjectGuid>
     <RootNamespace>Cuda_test_final</RootNamespace>
-    <CudaToolkitCustomDir>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.9</CudaToolkitCustomDir>
+    <CudaToolkitCustomDir>$(CUDA_PATH)</CudaToolkitCustomDir>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -128,6 +131,7 @@
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
       <FastMath>true</FastMath>
+      <CodeGeneration>compute_61,sm_61</CodeGeneration>
     </CudaCompile>
     <CudaLink>
       <AdditionalDependencies>

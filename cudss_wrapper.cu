@@ -130,7 +130,7 @@ int saveSparcityImage(std::string image_name, const int n, const int nnz, int* r
     double ratio = image_dimn / static_cast<double>(n);
     for (int i = 0; i < nnz; i++)
     {
-        if (i >= rowptr[y + 1]) y++;
+        if (i == rowptr[y + 1]) y++;
         
         int x_l = colind_post[colind[i]] * ratio;
         int y_l = rowptr_post[y] * ratio;

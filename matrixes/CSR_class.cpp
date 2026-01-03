@@ -127,9 +127,9 @@ void SparseStructures::CSR::readModFEMcrsMatrixFromFile(CSR& _CSR, std::ifstream
   unsigned long long n_col_start = text_data_from_matrix.find('\n', prev_find + 1);
   unsigned long long n_a_csr_start = text_data_from_matrix.find('\n', n_col_start + 1);
 
-  std::thread t3(assignValuesDouble, text_data_from_matrix, 0, _CSR.nnz, 1, n_a_csr_start, _CSR.a_csr);
-  std::thread t1(assignValuesInt, text_data_from_matrix, _CSR.n + 1, prev_find, _CSR.row_ptr);
-  std::thread t2(assignValuesInt, text_data_from_matrix, _CSR.nnz, n_col_start, _CSR.col_ind);
+  std::thread t3(assignValuesDouble, std::ref(text_data_from_matrix), 0, _CSR.nnz, 1, n_a_csr_start, _CSR.a_csr);
+  std::thread t1(assignValuesInt, std::ref(text_data_from_matrix), _CSR.n + 1, prev_find, _CSR.row_ptr);
+  std::thread t2(assignValuesInt, std::ref(text_data_from_matrix), _CSR.nnz, n_col_start, _CSR.col_ind);
 
   t3.join();
   t2.join();

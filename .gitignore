@@ -12,3 +12,7 @@ Eigen5/*
 *.txt
 *_binary*
 *.png
+*.exe
+.clang-uml
+*.xmi
+diagrams/*

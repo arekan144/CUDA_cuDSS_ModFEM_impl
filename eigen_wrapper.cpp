@@ -1,6 +1,5 @@
 #include "eigen_wrapper.h"
 #include <Eigen/Sparse>
-#include <Eigen/SparseLU>
 #include <iostream>
 #include <fstream>
 using namespace Eigen;
