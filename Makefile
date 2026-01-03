@@ -4,7 +4,7 @@ ARH = ar
 LINK = g++
 NLINK = nvcc
 
-ARCH = -arch=sm_60
+ARCH = -arch=sm_61
 OPS = -O3
 #NOPS = --fdevice-time-trace $(shell od -An -N2 -i /dev/random | tr -d ' ')trace 
 #OPS = -g -D _DEBUG=1
@@ -56,7 +56,8 @@ main.o: main.cpp
 	$(COMP) $(OPS) -o $@ -c $<
 
 main.exe: main.o libEigenWrapper.a libSparseStructures.a libCUDSSWrapper.a
-	$(NLINK) $(SNLIBINCL) $^ -o $@ $(NOPS)
+	$(LINK) $^ -o $@ $(NINCL) $(NLIBS)
+	#$(NLINK) $(SNLIBINCL) $^ -o $@ $(NOPS)
 
 #$(NLINK) $(ARCH) $^ $(NLIBS) $(NINCL) -o $@
 #$(LINK) $^ -I${CUDSS_INCLUDE} -Xlinker=${CUDSS_DIR}/libcudss_static.a 
