@@ -109,7 +109,8 @@ int saveSparcityImage(std::string image_name, const int n, const int nnz, int* r
         "cudaMalloc :img: data_d",
         cleanImageData,
         nothing);*/
-    byte* data_h = new byte[image_dimn*image_dimn*3];
+    const int nn = image_dimn * image_dimn;
+    byte* data_h = new byte[nn * 3];
     
     std::ofstream file("spr_row_col.txt");
 
@@ -134,17 +135,18 @@ int saveSparcityImage(std::string image_name, const int n, const int nnz, int* r
         
         int x_l = colind_post[colind[i]] * ratio;
         int y_l = rowptr_post[y] * ratio;
+        int x_y_l = (nn - (x_l + y_l * image_dimn)) * 3;
        // std::cout << colind_post[colind[i]] << " " << rowptr_post[y] << "\n";
-        switch (data_h[(x_l + y_l * image_dimn) * 3])
+        switch (data_h[x_y_l])
         {
         case static_cast<byte>(0):
-            data_h[(x_l + y_l * image_dimn) * 3] = data_h[(x_l + y_l * image_dimn) * 3 + 1] = data_h[(x_l + y_l * image_dimn) * 3 + 2] = static_cast<byte>(128);
+            data_h[x_y_l] = data_h[x_y_l + 1] = data_h[x_y_l + 2] = static_cast<byte>(128);
             break;
         case static_cast<byte>(254): case static_cast<byte>(255):
-            data_h[(x_l + y_l * image_dimn) * 3] = data_h[(x_l + y_l * image_dimn) * 3 + 1] = data_h[(x_l + y_l * image_dimn) * 3 + 2] = static_cast<byte>(255);
+            data_h[x_y_l * 3] = data_h[x_y_l + 1] = data_h[x_y_l + 2] = static_cast<byte>(255);
             break;
         default:
-            data_h[(x_l + y_l * image_dimn) * 3] = data_h[(x_l + y_l * image_dimn) * 3 + 1] = data_h[(x_l + y_l * image_dimn) * 3 + 2] = data_h[(x_l + y_l * image_dimn) * 3 + 2] + 2;
+            data_h[x_y_l * 3] = data_h[x_y_l + 1] = data_h[x_y_l + 2] = data_h[x_y_l + 2] + static_cast<byte>(2);
             break;
         }
     }
