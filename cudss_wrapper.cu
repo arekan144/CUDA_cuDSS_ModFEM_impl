@@ -112,7 +112,7 @@ int saveSparcityImage(std::string image_name, const int n, const int nnz, int* r
     const int nn = image_dimn * image_dimn;
     byte* data_h = new byte[nn * 3];
     
-    std::ofstream file("spr_row_col.txt");
+    /*std::ofstream file("spr_row_col.txt");
 
     for (int i = 0; i < n; i++)
         file << rowptr_post[i] << ' ';
@@ -122,7 +122,7 @@ int saveSparcityImage(std::string image_name, const int n, const int nnz, int* r
         file << colind_post[i] << ' ';
     file << '\n';
 
-    file.close();
+    file.close();*/
 
     for (int i = 0; i < image_dimn * image_dimn; i++)
         data_h[i * 3] = data_h[i * 3 + 1] = data_h[i * 3 + 2] = static_cast<byte>(0);
@@ -136,17 +136,18 @@ int saveSparcityImage(std::string image_name, const int n, const int nnz, int* r
         int x_l = colind_post[colind[i]] * ratio;
         int y_l = rowptr_post[y] * ratio;
         int x_y_l = (nn - (x_l + y_l * image_dimn)) * 3;
-       // std::cout << colind_post[colind[i]] << " " << rowptr_post[y] << "\n";
+        //int x_y_l = (x_l + y_l * image_dimn) * 3;
+        //std::cout << x_y_l << "\n";
         switch (data_h[x_y_l])
         {
         case static_cast<byte>(0):
             data_h[x_y_l] = data_h[x_y_l + 1] = data_h[x_y_l + 2] = static_cast<byte>(128);
             break;
         case static_cast<byte>(254): case static_cast<byte>(255):
-            data_h[x_y_l * 3] = data_h[x_y_l + 1] = data_h[x_y_l + 2] = static_cast<byte>(255);
+            data_h[x_y_l] = data_h[x_y_l + 1] = data_h[x_y_l + 2] = static_cast<byte>(255);
             break;
         default:
-            data_h[x_y_l * 3] = data_h[x_y_l + 1] = data_h[x_y_l + 2] = data_h[x_y_l + 2] + static_cast<byte>(2);
+            data_h[x_y_l] = data_h[x_y_l + 1] = data_h[x_y_l + 2] = data_h[x_y_l + 2] + static_cast<byte>(2);
             break;
         }
     }
@@ -154,7 +155,7 @@ int saveSparcityImage(std::string image_name, const int n, const int nnz, int* r
 
 
     std::cout << "Saving " << image_name << '\n';
-    /*std::cout << "WerereValues: " << werereValues << '\n';*/
+    //std::cout << "WerereValues: " << werereValues << '\n';
     stbi_write_png(image_name.c_str(), image_dimn, image_dimn, 3, data_h, image_dimn * 3);
     
     delete[] data_h;
