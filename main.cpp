@@ -53,7 +53,7 @@ static int __loadMatrix(std::string& file_name, short file_type, SparseStructure
 	return 0;
 }
 
-static void __compare(SparseStructures::CSR& _CSR, double* x_1, double* x_2) {
+static void __compare(const int N, double* x_1, double* x_2) {
 	// we are looking for smallest difference between both solutions, 
 	// where 100% of all values fall inside given treshold 
 	const size_t data_points = 12llu;
@@ -63,7 +63,7 @@ static void __compare(SparseStructures::CSR& _CSR, double* x_1, double* x_2) {
 		tolerance[i] = tolerance[i - 1] * 10.;
 		times[i] = 0;
 	}
-	for (auto i = 0; i < _CSR.getN(); i++)
+	for (auto i = 0; i < N; i++)
 	{
 		double abs_x = std::abs(x_1[i] - x_2[i]);
 		for (auto k = 0llu; k < data_points; k++)
@@ -71,12 +71,12 @@ static void __compare(SparseStructures::CSR& _CSR, double* x_1, double* x_2) {
 				times[k]++;
 	}
 	
-	double next_percent = static_cast<double>(times[0]) * 100. / static_cast<double>(_CSR.getN());
+	double next_percent = static_cast<double>(times[0]) * 100. / static_cast<double>(N);
 	size_t k = 0llu;
 	do {
 		std::cout << "Inside given tolerance: " << tolerance[k] << " " << times[k] << ", percent: " << next_percent << " % \n";
 		if (next_percent >= 100.) break;
-		next_percent = static_cast<double>(times[++k]) * 100. / static_cast<double>(_CSR.getN());
+		next_percent = static_cast<double>(times[++k]) * 100. / static_cast<double>(N);
 	} while (k != data_points);
 }
 
@@ -159,7 +159,7 @@ static int __cudssAndEigen(std::string& file_name, short file_type, short nskip_
 			continue;
 		}
 		std::cout << "For attempt " << i << "\n";
-		__compare(test_csr, x_1, x_2);
+		__compare(test_csr.getN(), x_1, x_2);
 	}
 
 	size_t last_slash = file_name.rfind('/', file_name.size() - 1) + 1;

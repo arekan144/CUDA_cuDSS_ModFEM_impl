@@ -189,7 +189,6 @@ void SparseStructures::CSR::readModFEMcrsMatrixFromFile(CSR& _CSR, std::ifstream
 
 void SparseStructures::CSR::saveModFEMcsrMatrixToBinary(CSR& _CSR, std::ofstream& matrix_file)
 {
-    
     matrix_file.write(reinterpret_cast<char*>(&_CSR.n), sizeof(int));
     matrix_file.write(reinterpret_cast<char*>(&_CSR.nnz), sizeof(int));
     matrix_file.write(reinterpret_cast<char*>(_CSR.row_ptr), static_cast<size_t>(_CSR.n + 1) * sizeof(int));
