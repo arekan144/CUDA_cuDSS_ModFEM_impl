@@ -21,11 +21,17 @@ NINCL = -I$(CTK_DIR)include -I$(CUDSS_INCLUDE)
 NLIBS = -L$(CUDSS_DIR) -L$(CTK_DIR)lib64 -lcudart -lcublas -lcublasLt -lculibos -lcudss 
 #NLIBS = -lcudart -lcublas -lcublasLt -lculibos -lcudss 
 
-SNLIBINCL = -I${CUDSS_INCLUDE} \
+NSNLIBINCL = -I${CUDSS_INCLUDE} \
 -Xlinker=${CUDSS_DIR}/libcudss_static.a \
 -Xlinker=${CTK_DIR}/lib64/libcublas_static.a \
 -Xlinker=${CTK_DIR}/lib64/libcublasLt_static.a \
 -Xlinker=${CTK_DIR}/lib64/libculibos.a
+
+SNLIBINCL = -I${CUDSS_INCLUDE} \
+-l${CUDSS_DIR}/libcudss_static.a \
+-l${CTK_DIR}/lib64/libcublas_static.a \
+-l${CTK_DIR}/lib64/libcublasLt_static.a \
+-l${CTK_DIR}/lib64/libculibos.a
 
 all: libEigenWrapper.a libSparseStructures.a libCUDSSWrapper.a main.exe
 
@@ -37,7 +43,6 @@ remove:
 	rm main.exe
 
 rebuild: clean remove all
-
 
 libEigenWrapper.a: eigen_wrapper.cpp eigen_wrapper.h
 	$(COMP) -c eigen_wrapper.cpp $(LIB_EIGEN) -o eigen_wrapper.o $(OPS)
