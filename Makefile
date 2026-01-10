@@ -4,7 +4,7 @@ ARH = ar
 LINK = g++
 NLINK = nvcc
 
-ARCH = -arch=sm_61
+ARCH = -arch=sm_60
 OPS = -O3
 #NOPS = --fdevice-time-trace $(shell od -An -N2 -i /dev/random | tr -d ' ')trace 
 #OPS = -g -D _DEBUG=1
@@ -13,12 +13,12 @@ NAME = "defaultnametoreplace"
 
 
 LIB_EIGEN = -I./Eigen5 -I./Eigen5/Eigen
-CTK_DIR=/usr/local/cuda-12.9/
+CTK_DIR=/usr/local/cuda-12.9
 CUDSS_DIR=/usr/lib/x86_64-linux-gnu/libcudss/12
 CUDSS_INCLUDE=/usr/include/libcudss/12
 
-NINCL = -I$(CTK_DIR)include -I$(CUDSS_INCLUDE)
-NLIBS = -L$(CUDSS_DIR) -L$(CTK_DIR)lib64 -lcudart -lcublas -lcublasLt -lculibos -lcudss 
+NINCL = -I$(CTK_DIR)/include -I$(CUDSS_INCLUDE)
+NLIBS = -L$(CUDSS_DIR) -L$(CTK_DIR)/lib64 -lcudart -lcublas -lcublasLt -lculibos -lcudss 
 #NLIBS = -lcudart -lcublas -lcublasLt -lculibos -lcudss 
 
 NSNLIBINCL = -I${CUDSS_INCLUDE} \
@@ -27,11 +27,14 @@ NSNLIBINCL = -I${CUDSS_INCLUDE} \
 -Xlinker=${CTK_DIR}/lib64/libcublasLt_static.a \
 -Xlinker=${CTK_DIR}/lib64/libculibos.a
 
-SNLIBINCL = -I${CUDSS_INCLUDE} \
--l${CUDSS_DIR}/libcudss_static.a \
--l${CTK_DIR}/lib64/libcublas_static.a \
--l${CTK_DIR}/lib64/libcublasLt_static.a \
--l${CTK_DIR}/lib64/libculibos.a
+SNLIBINCL = ${CUDSS_DIR}/libcudss_static.a \
+	    ${CTK_DIR}/lib64/libcudart_static.a \
+	    ${CTK_DIR}/lib64/libcublas_static.a \
+	    ${CTK_DIR}/lib64/libcublasLt_static.a \
+	    ${CTK_DIR}/lib64/libculibos.a \
+
+
+
 
 all: libEigenWrapper.a libSparseStructures.a libCUDSSWrapper.a main.exe
 
@@ -62,7 +65,12 @@ main.o: main.cpp
 
 main.exe: main.o libEigenWrapper.a libSparseStructures.a libCUDSSWrapper.a
 	$(LINK) $^ -o $@ $(NINCL) $(NLIBS)
-	#$(NLINK) $(SNLIBINCL) $^ -o $@ $(NOPS)
+
+	
+#$(LINK) $^ -o $@ $(SNLIBINCL)
+#$(LINK) $^ -o $@ $(NINCL) $(NLIBS)
+
+	
 
 #$(NLINK) $(ARCH) $^ $(NLIBS) $(NINCL) -o $@
 #$(LINK) $^ -I${CUDSS_INCLUDE} -Xlinker=${CUDSS_DIR}/libcudss_static.a 
